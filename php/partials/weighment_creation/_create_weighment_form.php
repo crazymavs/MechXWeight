@@ -63,21 +63,14 @@
 	</div>
 </form>
 
-
-<script src="<?= $asset_base ?>/js/baseUrl.js"></script>
-
 <script>
 	const weighment_type = document.querySelector('#weighment_type')
 	const weightment_form = document.querySelector('#weightment_form')
 
 	weightment_form.addEventListener('submit', (e) => {
 		e.preventDefault()
-
-		console.log('this is form submit')
-		console.log(apiBase)
 		const formData = new FormData(event.target);
 		formData.append('actionMethod', 'addfirstweight')
-		console.log(formData)
 		for (const [name, value] of formData.entries()) {
 			console.log(`${name}: ${value}`);
 		}
@@ -85,7 +78,6 @@
 		for (const [name, value] of formData.entries()) {
 			data[name] = value;
 		}
-		console.log(data)
 		fetch(apiBase, {
 				method: 'POST',
 				headers: {
@@ -98,9 +90,23 @@
 				console.log('Success:', result);
 				// Add any further handling here
 				if (result.status) {
-					alert("success")
+					// alert("success")
+					const toastLiveExample = document.getElementById('successToast');
+					$('.success-toast-body').text(result.message)
+					const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+						delay: 3000,
+						autohide: true
+					});
+					toastBootstrap.show();
 				} else {
-					alert('error')
+					// alert('error')
+					const toastLiveExample = document.getElementById('successToast');
+					$('.error-toast-body').text(result.message)
+					const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+						delay: 3000,
+						autohide: true
+					});
+					toastBootstrap.show();
 				}
 			})
 			.catch(error => {
