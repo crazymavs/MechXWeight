@@ -25,7 +25,7 @@ $url = isset($_GET['url']) ? trim($_GET['url']) : '/';
 // $asset_base = $base_url == "http://localhost:8080/"? '/MechXWeight/' : '/';
 
 // OR
- 
+
 // $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? "https://" : "http://";
 // $host = $_SERVER['HTTP_HOST'];
 
@@ -47,40 +47,48 @@ $routes = [
 	'' => 'php/views/_login.php',
 	'/' => 'php/views/_login.php',
 	'login' => 'php/views/_login.php',
-    'api' => 'php/ajax/_knplvApi.php',
+	'api' => 'php/ajax/_mechxweightapi.php',
 	'error' => 'php/views/_error.php',
 	'dashboard' => 'php/views/_dashboard.php',
-	
+
 ];
 
 // $isLoggedIn = true;
 $isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'];
-if($isLoggedIn){
-		$loginName = $_SESSION['user_username'];
-		$userName = $_SESSION['user_name'];
-		$userEmail = $_SESSION['user_email'];
-		$userLevel = $_SESSION['user_level'];
+if ($isLoggedIn) {
+	$loginName = $_SESSION['user_username'];
+	$userName = $_SESSION['user_name'];
+	$userEmail = $_SESSION['user_email'];
+	$userLevel = $_SESSION['user_level'];
 }
 
+if ($url == 'api') {
+	include_once $routes['api'];
+	return;
+}
 
-function loadPage() {
-    global $url, $routes;
-    $pageExists = array_key_exists($url, $routes);
-    if ($pageExists) {
+function loadPage()
+{
+	global $url, $routes;
+	$parts = explode('/', $url);
+	$firstElement = $parts[0];
+	$pageExists = array_key_exists($firstElement, $routes);
+	if ($pageExists) {
+
 		include_once 'php/partials/global/_header.php';
-	
+
 		echo '<main id="main" class="main">';
 
 		include_once('php/partials/_sidebar.php');
 		include_once('php/partials/_dashboardTitle.php');
 
-		include_once $routes[$url];
+		include_once $routes[$firstElement];
 
 		echo '</main>';
 
 		include_once 'php/partials/global/_footer.php';
-    }
-    return $pageExists;
+	}
+	return $pageExists;
 }
 
 
@@ -117,7 +125,7 @@ function loadPage() {
 	<meta name="msapplication-TileColor" content="#ffffff">
 	<meta name="msapplication-TileImage" content="<?php echo $asset_base ?>assets/img/favicons/ms-icon-144x144.png">
 	<meta name="theme-color" content="#ffffff">
-	
+
 	<!--==============================
 	    All CSS File
 	============================== -->
@@ -132,7 +140,7 @@ function loadPage() {
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/magnific-popup.min.css">
 	<!-- Slick Slider -->
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/slick.min.css">
-    <!-- Data tables -->
+	<!-- Data tables -->
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/datatables.css">
 	<!-- Custom Phone Number Input -->
 	<!-- <link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/intlTelInput.css"> -->
@@ -142,10 +150,7 @@ function loadPage() {
 
 <body>
 
-  
-
-
-    <?php
+	<?php
 	// Check if the requested URL exists in the routes
 	switch ($url) {
 		case '/':
@@ -153,7 +158,7 @@ function loadPage() {
 		case 'login':
 			global $routes;
 			$pageExists = array_key_exists($url, $routes);
-	
+
 			if ($isLoggedIn) {
 				// Redirect logged-in users to dashboard
 				header("Location: " . $asset_base . "dashboard");
@@ -170,19 +175,19 @@ function loadPage() {
 			}
 			break;
 
-			case 'api':
-				include_once $routes['api'];
-				break;
+		case 'api':
+			include_once $routes['api'];
+			break;
 
-			case 'error':
-				include_once $routes['error'];
-				break;
-	
+		case 'error':
+			include_once $routes['error'];
+			break;
+
 		default:
 			if (!$isLoggedIn) {
 				// Redirect non-logged-in users to login
 				header("Location: " . $asset_base . "login");
-				exit(); 
+				exit();
 			} else {
 				// Load the requested page or show error
 				if (!loadPage()) {
@@ -195,59 +200,62 @@ function loadPage() {
 	}
 
 
-    ?>
+	?>
 
-  
-<div class="toast-container position-fixed top-0 end-0 p-3">
-	<div id="successToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="toast-header">
-			<strong class="me-auto">Success</strong>
-			<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+
+	<div class="toast-container position-fixed top-0 end-0 p-3">
+		<div id="successToast" class="toast text-bg-success" role="alert" aria-live="assertive" aria-atomic="true">
+			<div class="toast-header">
+				<strong class="me-auto">Success</strong>
+				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+			<div class="success-toast-body toast-body">
+
+			</div>
 		</div>
-		<div class="success-toast-body toast-body">
-		
+
+		<div id="errorToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
+			<div class="toast-header">
+				<strong class="me-auto">Error</strong>
+				<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+			</div>
+			<div class="error-toast-body toast-body">
+
+			</div>
 		</div>
 	</div>
 
-	<div id="errorToast" class="toast text-bg-danger" role="alert" aria-live="assertive" aria-atomic="true">
-		<div class="toast-header">
-			<strong class="me-auto">Error</strong>
-			<button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+
+	<?php if ($url !== '/' && $url !== 'login'): ?>
+
+
+		<div class="loadingDiv text-center d-none">
+			<div class="spinner-border nerolac text-danger" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
+			<div class="text-danger loadingSpace">
+				<h1>Loading...</h1>
+			</div>
+			<div class="spinner-border digi text-danger" role="status">
+				<span class="visually-hidden">Loading...</span>
+			</div>
 		</div>
-		<div class="error-toast-body toast-body">
-			
-		</div>
-	</div>
-</div>
-
-
-<?php if ($url !== '/' && $url !== 'login'): ?>
-	
-
-<div class="loadingDiv text-center d-none">
-	<div class="spinner-border nerolac text-danger" role="status">
-		<span class="visually-hidden">Loading...</span>
-	</div>
-	<div class="text-danger loadingSpace"><h1>Loading...</h1></div>
-	<div class="spinner-border digi text-danger" role="status">
-		<span class="visually-hidden">Loading...</span>
-	</div>
-</div>
-<?php endif; ?>
-  <!--==============================
+	<?php endif; ?>
+	<!--==============================
         All Js File
     ============================== -->
-    <script>
-        const ajaxBase = "<?php echo $asset_base ?>";
+	<script>
+		const ajaxBase = "<?php echo $asset_base ?>";
 		const currentPage = '<?= $url; ?>';
-    </script>
+		const apiBase = "<?php echo $asset_base ?>api";
+	</script>
 	<!-- Jquery -->
 	<script src="<?php echo $asset_base ?>assets/js/jquery-3.6.0.min.js"></script>
 	<!-- Slick Slider -->
 	<script src="<?php echo $asset_base ?>assets/js/slick.min.js"></script>
 	<!-- Bootstrap -->
 	<script src="<?php echo $asset_base ?>assets/js/bootstrap.bundle.js"></script>
-    <!-- Lazy loader -->
+	<!-- Lazy loader -->
 	<script src="<?php echo $asset_base ?>assets/js/jquery.lazy.min.js"></script>
 	<!-- WOW.js Animation -->
 	<script src="<?php echo $asset_base ?>assets/js/wow.min.js"></script>
@@ -261,18 +269,18 @@ function loadPage() {
 	<!-- form handler Js File -->
 	<script src="<?php echo $asset_base ?>assets/js/form_handler.js"></script>
 	<!-- Datatable File -->
-    <script src="<?php echo $asset_base ?>assets/js/simple-datatables.js"></script>
-    <!-- tinymce File -->
-    <script src="<?php echo $asset_base ?>assets/js/tinymce.min.js"></script>
-    <!-- Excel Expor -->
-    <script src="<?php echo $asset_base ?>assets/js/excelexportjs.js"></script>
+	<script src="<?php echo $asset_base ?>assets/js/simple-datatables.js"></script>
+	<!-- tinymce File -->
+	<script src="<?php echo $asset_base ?>assets/js/tinymce.min.js"></script>
+	<!-- Excel Expor -->
+	<script src="<?php echo $asset_base ?>assets/js/excelexportjs.js"></script>
 	<!-- Exccel Import -->
-    <script src="<?php echo $asset_base ?>assets/js/xlsx.full.min.js"></script>
+	<script src="<?php echo $asset_base ?>assets/js/xlsx.full.min.js"></script>
 
 	<script src="<?php echo $asset_base ?>assets/vendor/apexcharts/apexcharts.min.js"></script>
-  <script src="<?php echo $asset_base ?>assets/vendor/chart.js/chart.umd.js"></script>
-  <script src="<?php echo $asset_base ?>assets/vendor/echarts/echarts.min.js"></script>
-  <script src="<?php echo $asset_base ?>assets/vendor/quill/quill.js"></script>
+	<script src="<?php echo $asset_base ?>assets/vendor/chart.js/chart.umd.js"></script>
+	<script src="<?php echo $asset_base ?>assets/vendor/echarts/echarts.min.js"></script>
+	<script src="<?php echo $asset_base ?>assets/vendor/quill/quill.js"></script>
 	<script src="<?php echo $asset_base ?>assets/js/adminMain.js"></script>
 	<script src="<?php echo $asset_base ?>assets/js/admin.js"></script>
 	<?php if ($url === '/' || $url === 'login'): ?>
