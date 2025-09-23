@@ -58,6 +58,18 @@ switch ($action_method) {
     case 'addfirstweight':
         include_once 'php/partials/functions/_insertFirstWeight.php';
         return insertFirstWeight($conn, $data);
+    case 'getPendingWeights':
+        include_once 'php/partials/functions/_get_pending_records.php';
+        return getPendingWeighingRecords($conn, $data);
+    case 'getsinglerecordbyid':
+        include_once 'php/partials/functions/_get_single_record.php';
+        return getWeighingRecordById($conn, $data);
+    case 'getallvehicles':
+        include_once 'php/partials/functions/_get_all_vehicles.php';
+        return getAllVehicles($conn, $data);
+    case 'insertvehicle':
+        include_once 'php/partials/functions/_insert_vehicle.php';
+        return insertVehicle($conn, $data);
     default:
         echo json_encode([
             "status" => false,

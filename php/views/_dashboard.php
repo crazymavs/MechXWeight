@@ -1,11 +1,11 @@
 <?php
 $routes = [
     '' => 'php/partials/_dashboard.php',
-    'pending' => 'php/partials/_pending_dashboard.php',
-    'login' => 'php/views/_login.php',
-    'api' => 'php/ajax/_mechxweightapi.php',
-    'error' => 'php/views/_error.php',
-    'dashboard' => 'php/views/_dashboard.php',
+    'pending' => 'php/partials/dashboard/_pending_dashboard.php',
+    'vehicles' => 'php/partials/dashboard/_vehicle_master_table.php',
+    'parties' => 'php/partials/dashboard/_parties_master_table.php',
+    'materials' => 'php/partials/dashboard/_material_master_table.php',
+
 
 ];
 $parts = explode('/', $url);

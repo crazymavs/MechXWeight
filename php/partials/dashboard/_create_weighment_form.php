@@ -4,7 +4,7 @@
 <form action="" id="weightment_form">
 	<div class=" row">
 		<div class="col-md-6">
-			<div class="input-group mb-3">
+			<!-- <div class="input-group mb-3">
 				<span class="input-group-text"><strong>Weighment Type</strong></span>
 				<select name="weighment_type" class="form-select">
 					<option selected="0">Choose...</option>
@@ -14,43 +14,43 @@
 					<option value="4">Multipart</option>
 					<option value="5">Preloaded</option>
 				</select>
-			</div>
+			</div> -->
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Material</strong></span>
-				<input type="text" class="form-control" name="material" value="Steel">
+				<input type="text" class="form-control" id="weighment_form_material" name="material" value="">
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Party Name</strong></span>
-				<input type="text" class="form-control" name="party_name" value="Mechotronix">
+				<input type="text" class="form-control" id="weighment_form_party_name" name="party_name" value="">
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Charges</strong></span>
-				<input type="text" class="form-control" name="charges" value="100">
+				<input type="text" class="form-control" id="weighment_form_charges" name="charges" value="">
 				<span class="input-group-text"><strong>₹</strong></span>
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Vehicle_no No.</strong></span>
-				<input type="text" class="form-control" name="vehicle_no" value="0978687">
+				<input type="text" class="form-control" id="weighment_form_vehicle_no" name="vehicle_no" value="">
 			</div>
 		</div>
 		<div class="col-md-6">
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Ticket No.</strong></span>
-				<input type="text" class="form-control" name="ticket_no" value="0978687">
+				<input type="text" class="form-control" id="weighment_form_ticket_no" name="ticket_no" value="">
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Weight 1</strong></span>
-				<input type="text" class="form-control" name="weight_1" value="">
+				<input type="text" class="form-control" id="weighment_form_weight_1" name="weight_1" value="">
 				<span class="input-group-text"><strong>kg</strong></span>
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Weight 2</strong></span>
-				<input type="text" class="form-control" name="weight_2" value="">
+				<input type="text" class="form-control" id="weighment_form_weight_2" name="weight_2" value="">
 				<span class="input-group-text"><strong>kg</strong></span>
 			</div>
 			<div class="input-group mb-3">
 				<span class="input-group-text"><strong>Net Weight</strong></span>
-				<input type="text" class="form-control" name="net_weight" value="100">
+				<input type="text" class="form-control" id="weighment_form_new_weight" disabled name="net_weight" value="0">
 				<span class="input-group-text"><strong>kg</strong></span>
 			</div>
 		</div>

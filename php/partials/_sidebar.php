@@ -21,15 +21,38 @@
 
           <li class="nav-heading"><i class="fa-duotone fa-solid fa-scale-balanced"></i> <span>Weighments</span></li>
           <li class="nav-item">
+              <a class="nav-link" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#" aria-expanded="true">
+                  <i class="fa-solid fa-folder-tree"></i><span>Masters</span><i class="fa fa-angle-down ms-auto" aria-hidden="true"></i>
+              </a>
+              <ul id="components-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav" style="">
+                  <li>
+                      <a href="<?php echo $asset_base ?>dashboard/vehicles">
+                          <i class=" fa-solid fa-truck"></i><span>Vehicle</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="<?php echo $asset_base ?>dashboard/parties">
+                          <i class="fa-solid fa-users"></i><span>Parties</span>
+                      </a>
+                  </li>
+                  <li>
+                      <a href="<?php echo $asset_base ?>dashboard/materials">
+                          <i class="fa-solid fa-box-open"></i><span>Material</span>
+                      </a>
+                  </li>
+
+              </ul>
+          </li>
+          <li class="nav-item">
               <a class="nav-link collapsed" href="<?php echo $asset_base ?>dashboard/pending">
-                  <i class="fa-duotone fa-solid fa-scale-balanced"></i>
-                  <span>Pending</span>
+                  <i class="fa-solid fa-list-radio"></i>
+                  <span>Transactions</span>
               </a>
           </li><!-- End New Solvent Yard -->
           <li class="nav-item">
               <a class="nav-link collapsed" href="<?php echo $asset_base ?>reports/oldsolventyard">
                   <i class="fa-duotone fa-solid fa-scale-balanced"></i>
-                  <span>Completed</span>
+                  <span>Users</span>
               </a>
 
           <li>

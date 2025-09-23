@@ -80,7 +80,7 @@ function loadPage()
 		echo '<main id="main" class="main">';
 
 		include_once('php/partials/_sidebar.php');
-		include_once('php/partials/_dashboardTitle.php');
+		// include_once('php/partials/_dashboardTitle.php');
 
 		include_once $routes[$firstElement];
 
@@ -146,10 +146,16 @@ function loadPage()
 	<!-- <link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/intlTelInput.css"> -->
 	<!-- Theme Custom CSS -->
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/adminStyle.css">
+	<script src="<?php echo $asset_base ?>assets/js/apiService.js"></script>
+
 </head>
 
 <body>
-
+	<script>
+		const ajaxBase = "<?php echo $asset_base ?>";
+		const currentPage = '<?= $url; ?>';
+		const apiBase = "<?php echo $asset_base ?>api";
+	</script>
 	<?php
 	// Check if the requested URL exists in the routes
 	switch ($url) {
@@ -244,11 +250,7 @@ function loadPage()
 	<!--==============================
         All Js File
     ============================== -->
-	<script>
-		const ajaxBase = "<?php echo $asset_base ?>";
-		const currentPage = '<?= $url; ?>';
-		const apiBase = "<?php echo $asset_base ?>api";
-	</script>
+
 	<!-- Jquery -->
 	<script src="<?php echo $asset_base ?>assets/js/jquery-3.6.0.min.js"></script>
 	<!-- Slick Slider -->

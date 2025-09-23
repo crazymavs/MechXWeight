@@ -6,6 +6,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 function insertWeights($conn, $weighing_id, $weighment_type, $weights)
 {
+    $weighment_type = isset($weighment_type) ? $weighment_type : 1;
     $checkStmt = $conn->prepare("SELECT 1 FROM weights WHERE weighingrecord_id = ? AND weight_count = ? LIMIT 1");
     $insertStmt = $conn->prepare("INSERT INTO weights (weighingrecord_id, weightment_type, weight, weight_count, weighed_on) VALUES (?, ?, ?, ?, ?)");
 
