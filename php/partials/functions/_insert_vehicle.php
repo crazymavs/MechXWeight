@@ -18,14 +18,14 @@ function insertVehicle($conn, $data)
         if ($stmt->execute()) {
             $insertedId = $stmt->insert_id;
             $stmt->close();
-            $response = ['status' => true, 'id' => $insertedId];
+            $response = ['status' => true, 'id' => $insertedId, 'message' => "Successfully inserted Vehicle"];
         } else {
             $error = $stmt->error;
             $stmt->close();
-            $response = ['status' => false, 'error' => $error];
+            $response = ['status' => false, 'error' => $error, 'message' => "Error while inserting Vehicle"];
         }
     } else {
-        $response = ['status' => false, 'error' => $conn->error];
+        $response = ['status' => false, 'error' => $conn->error, 'message' => "Error while inserting Vehicle"];
     }
     echo json_encode($response);
 }

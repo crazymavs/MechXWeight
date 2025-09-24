@@ -70,6 +70,18 @@ switch ($action_method) {
     case 'insertvehicle':
         include_once 'php/partials/functions/_insert_vehicle.php';
         return insertVehicle($conn, $data);
+    case 'getallparties':
+        include_once 'php/partials/functions/_get_all_parties.php';
+        return getAllParties($conn, $data);
+    case 'insertparty':
+        include_once 'php/partials/functions/_insert_party.php';
+        return insertParty($conn, $data);
+    case 'deleteparty':
+        include_once 'php/partials/functions/_delete_party.php';
+        return deletePartyById($conn, $data);
+    case 'deletevehicle':
+        include_once 'php/partials/functions/_delete_vehicle.php';
+        return deleteVehicleById($conn, $data);
     default:
         echo json_encode([
             "status" => false,

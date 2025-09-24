@@ -1,4 +1,4 @@
-<section class="col-12">
+<section class="col-12 " id="vehicle_table_section">
     <div class="d-flex justify-content-between">
         <h5><strong>All Vehicles</strong></h5>
         <div>
@@ -33,8 +33,8 @@
 
 
                         <div class="d-flex p-4 gap-2 justify-content-end">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="addvehiclemodalclosebtn">Close</button>
+                            <button type=" submit" class="btn btn-primary">Save changes</button>
                         </div>
                 </form>
             </div>
@@ -72,6 +72,7 @@
 </section>
 
 <script>
+    const modalCloseBtn = document.querySelector('#addvehiclemodalclosebtn')
     const form = document.querySelector('#add_vehicle_form')
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
@@ -83,22 +84,37 @@
         console.log(data)
 
         const res = await inserNewVehicle(data)
-        console.log(res)
+        console.log({
+            res
+        })
+        if (res.status) {
+            const toastLiveExample = document.getElementById('successToast');
+            $('.success-toast-body').text(res.message)
+            const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                delay: 3000,
+                autohide: true
+            });
+            toastBootstrap.show();
+            fetchAndDisplayVehicles()
+        } else {
+            const toastLiveExample = document.getElementById('errorToast');
+            $('.error-toast-body').text(res.message)
+            const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                delay: 3000,
+                autohide: true
+            });
+            toastBootstrap.show();
+        }
+        // console.log(modal.classList)
+        modalCloseBtn.click()
     })
 
     async function fetchAndDisplayVehicles() {
         try {
-            const response = await getAllVehicles()
-            console.log(response)
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-
-            const result = await response.json();
-
-            if (result.status && result.data) {
-                const vehicles = result.data;
-                const tbody = document.getElementById('vehicletableBody');
+            const res = await getAllVehicles()
+            if (res.status) {
+                const vehicles = res.data;
+                const tbody = document.querySelector('#vehicle_table_section').querySelector('tbody');
                 tbody.innerHTML = ''; // Clear existing table data
 
                 vehicles.forEach(vehicle => {
@@ -112,10 +128,10 @@
                     <td>${vehicle.vehicle_created_at || ''}</td>
                     <td>${vehicle.vehicle_status?'active': 'inactive'}</td>
                      <td>
-                        <select id="actions"  class="form-select" onchange="handleSelect(this)">
+                        <select id="actions"  class="form-select" onchange="handleVehicleAction(this, ${vehicle.vehicle_id})">
                             <option value="choose" class="d-none" >Choose</option>
-                            <option value="add">Edit</option>
-                            <option value="print">Delete</option>
+                            <option value="edit">Edit</option>
+                            <option value="delete">Delete</option>
                         </select>
                     </td>
                 `;
@@ -123,13 +139,58 @@
                     tbody.appendChild(tr);
                 });
             } else {
-                console.error('Error fetching vehicles:', result.message || 'Unknown error');
+                console.error('Error fetching vehicles:');
             }
         } catch (error) {
             console.error('Fetch error:', error);
         }
     }
 
+    const deleteVehicleById = async (vehicle_id) => {
+        try {
+            const res = await deleteVehicle({
+                vehicle_id
+            })
+
+            console.log(res);
+
+            if (res.status) {
+                const toastLiveExample = document.getElementById('successToast');
+                $('.success-toast-body').text(res.message);
+                const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                    delay: 3000,
+                    autohide: true,
+                });
+                toastBootstrap.show();
+
+                // Refresh the parties list after deletion
+                fetchAndDisplayParties();
+            } else {
+                const toastLiveExample = document.getElementById('errorToast');
+                $('.error-toast-body').text(res.message);
+                const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                    delay: 3000,
+                    autohide: true,
+                });
+                toastBootstrap.show();
+            }
+        } catch (error) {
+            console.error("Delete API error:", error);
+        }
+        fetchAndDisplayVehicles();
+    };
     // Example usage: Call the function to populate the table on page load
     fetchAndDisplayVehicles();
+
+    function handleVehicleAction(selectElem, partyId) {
+        const action = selectElem.value;
+        // Implement edit/delete actions as needed
+        console.log(`Action "${action}" selected for party ID: ${partyId}`);
+        if (action === "delete") {
+            deleteVehicleById(partyId);
+        } else if (action === "edit") {
+            // handle edit
+        }
+        selectElem.value = 'choose'; // Reset select after action
+    }
 </script>
