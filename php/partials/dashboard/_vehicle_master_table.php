@@ -2,7 +2,7 @@
     <div class="d-flex justify-content-between">
         <h5><strong>All Vehicles</strong></h5>
         <div>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addvehiclemodal">
+            <button type="button" class="btn btn-primary addvehiclemodal" data-bs-toggle="modal" data-bs-target="#addvehiclemodal">
                 Add New
             </button>
         </div>
@@ -73,7 +73,10 @@
 
 <script>
     const modalCloseBtn = document.querySelector('#addvehiclemodalclosebtn')
+    const addVehicleBtn = document.querySelector('.addvehiclemodal')
     const form = document.querySelector('#add_vehicle_form')
+    let isEdit = false
+    let vehicle_id = 0
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
@@ -81,12 +84,13 @@
         for (const [name, value] of formData.entries()) {
             data[name] = value;
         }
-        console.log(data)
+        if (isEdit) {
+            data['vehicle_id'] = vehicle_id;
+            isEdit = false;
+        }
 
-        const res = await inserNewVehicle(data)
-        console.log({
-            res
-        })
+        const res = await inserNewVehicleAPI(data)
+
         if (res.status) {
             const toastLiveExample = document.getElementById('successToast');
             $('.success-toast-body').text(res.message)
@@ -105,13 +109,14 @@
             });
             toastBootstrap.show();
         }
-        // console.log(modal.classList)
+        e.target.reset();
         modalCloseBtn.click()
+        isEdit = false;
     })
 
     async function fetchAndDisplayVehicles() {
         try {
-            const res = await getAllVehicles()
+            const res = await getAllVehiclesAPI()
             if (res.status) {
                 const vehicles = res.data;
                 const tbody = document.querySelector('#vehicle_table_section').querySelector('tbody');
@@ -148,12 +153,9 @@
 
     const deleteVehicleById = async (vehicle_id) => {
         try {
-            const res = await deleteVehicle({
+            const res = await deleteVehicleAPI({
                 vehicle_id
             })
-
-            console.log(res);
-
             if (res.status) {
                 const toastLiveExample = document.getElementById('successToast');
                 $('.success-toast-body').text(res.message);
@@ -180,17 +182,28 @@
         fetchAndDisplayVehicles();
     };
     // Example usage: Call the function to populate the table on page load
-    fetchAndDisplayVehicles();
+    async function handleEdit(vehicleId) {
+        isEdit = true
+        const res = await getVehicleByIdAPI(vehicleId);
+        vehicle_id = res.data.vehicle_id
+        addVehicleBtn.click();
+        document.getElementById('inp_vehicle_owner').value = res.data.vehicle_owner;
+        document.getElementById('inp_vehicle_number').value = res.data.vehicle_number;
+        document.getElementById('inp_vehicle_weight').value = res.data.vehicle_weight;
 
-    function handleVehicleAction(selectElem, partyId) {
+    }
+
+    function handleVehicleAction(selectElem, vehicleId) {
         const action = selectElem.value;
         // Implement edit/delete actions as needed
-        console.log(`Action "${action}" selected for party ID: ${partyId}`);
         if (action === "delete") {
-            deleteVehicleById(partyId);
+            deleteVehicleById(vehicleId);
         } else if (action === "edit") {
             // handle edit
+            handleEdit(vehicleId);
         }
         selectElem.value = 'choose'; // Reset select after action
     }
+
+    fetchAndDisplayVehicles();
 </script>

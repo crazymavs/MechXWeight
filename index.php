@@ -50,7 +50,6 @@ $routes = [
 	'api' => 'php/ajax/_mechxweightapi.php',
 	'error' => 'php/views/_error.php',
 	'dashboard' => 'php/views/_dashboard.php',
-
 ];
 
 // $isLoggedIn = true;
@@ -147,7 +146,6 @@ function loadPage()
 	<!-- Theme Custom CSS -->
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/adminStyle.css">
 	<script src="<?php echo $asset_base ?>assets/js/apiService.js"></script>
-
 </head>
 
 <body>

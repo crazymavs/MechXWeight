@@ -39,18 +39,11 @@
     const data = {
         "actionMethod": "getPendingWeights"
     }
-    console.log(apiBase)
-
-    console.log(apiBase)
-
     const tbody = document.getElementById('pendingWeightsBody');
     const form = document.querySelector('#weightment_form')
 
     function handleSelect(elem) {
         const ticketNo = elem.closest('tr').querySelector('.ticketNo').innerText
-
-        console.log(ticketNo)
-
         if (elem.value === "add") {
             // Call your 'add record' function here
             fetchExistingData(ticketNo)
@@ -80,7 +73,6 @@
             }
             const Fetcheddata = await response.json();
             // Handle the fetched data here
-            console.log('Fetched data:', Fetcheddata);
             const data = Fetcheddata.data
 
             const w1 = data.weights.split(',')[0] ?? 0;

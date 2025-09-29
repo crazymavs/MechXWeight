@@ -1,20 +1,20 @@
 <?php
-function deletePartyById($conn, $data)
+function deleteMaterialById($conn, $data)
 {
-    $partyId = $data['party_id'];
-    $sql = "DELETE FROM parties WHERE party_id = ?";
+    $materialId = $data['material_id'];
+    $sql = "DELETE FROM material WHERE material_id = ?";
 
     if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("i", $partyId);
+        $stmt->bind_param("i", $materialId);
 
         if ($stmt->execute()) {
             $affectedRows = $stmt->affected_rows;
             $stmt->close();
 
             if ($affectedRows > 0) {
-                $response = ['status' => true, 'message' => 'Party deleted successfully'];
+                $response = ['status' => true, 'message' => 'Material deleted successfully'];
             } else {
-                $response = ['status' => false, 'message' => 'No party found with the given ID'];
+                $response = ['status' => false, 'message' => 'No material found with the given ID'];
             }
         } else {
             $error = $stmt->error;

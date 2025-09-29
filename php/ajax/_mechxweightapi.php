@@ -67,12 +67,18 @@ switch ($action_method) {
     case 'getallvehicles':
         include_once 'php/partials/functions/_get_all_vehicles.php';
         return getAllVehicles($conn, $data);
+    case 'getvehiclebyid':
+        include_once 'php/partials/functions/_get_all_vehicles.php';
+        return getVehicleById($conn, $data);
     case 'insertvehicle':
         include_once 'php/partials/functions/_insert_vehicle.php';
         return insertVehicle($conn, $data);
     case 'getallparties':
         include_once 'php/partials/functions/_get_all_parties.php';
         return getAllParties($conn, $data);
+    case 'getpartybyid':
+        include_once 'php/partials/functions/_get_all_parties.php';
+        return getPartyById($conn, $data);
     case 'insertparty':
         include_once 'php/partials/functions/_insert_party.php';
         return insertParty($conn, $data);
@@ -82,6 +88,18 @@ switch ($action_method) {
     case 'deletevehicle':
         include_once 'php/partials/functions/_delete_vehicle.php';
         return deleteVehicleById($conn, $data);
+    case 'insertmaterial':
+        include_once 'php/partials/functions/_insert_material.php';
+        return insertMaterial($conn, $data);
+    case 'getallmaterials':
+        include_once 'php/partials/functions/_get_all_material.php';
+        return getAllMaterials($conn, $data);
+    case 'getmaterialbyid':
+        include_once 'php/partials/functions/_get_all_material.php';
+        return getMaterialById($conn, $data);
+    case 'deletematerial':
+        include_once 'php/partials/functions/_delete_material.php';
+        return deleteMaterialById($conn, $data);
     default:
         echo json_encode([
             "status" => false,

@@ -1,31 +1,62 @@
 <?php
 function insertVehicle($conn, $data)
 {
-    $sql = "INSERT INTO vehicles (vehicle_owner, vehicle_number, vehicle_created_at, vehicle_status, vehicle_weight) 
-            VALUES (?, ?, ?, ?, ?)";
+    $vehicle_owner = isset($data['owner_name']) ? $data['owner_name'] : null;
+    $vehicle_number = isset($data['vehicle_number']) ? $data['vehicle_number'] : null;
+    $vehicle_weight = isset($data['vehicle_weight']) ? (int)$data['vehicle_weight'] : 0;
+    $status = isset($data['vehicle_status']) ? (int)$data['vehicle_status'] : 1;
     $created_at = date('Y-m-d H:i:s');
-    $status = 1;
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param(
-            "sssis",
-            $data['owner_name'],
-            $data['vehicle_number'],
-            $created_at, // Should be in 'YYYY-MM-DD HH:MM:SS' format
-            $status,
-            $data['vehicle_weight']
-        );
 
-        if ($stmt->execute()) {
-            $insertedId = $stmt->insert_id;
-            $stmt->close();
-            $response = ['status' => true, 'id' => $insertedId, 'message' => "Successfully inserted Vehicle"];
+    if (isset($data['vehicle_id']) && !empty($data['vehicle_id'])) {
+        // Edit existing vehicle
+        $vehicle_id = (int)$data['vehicle_id'];
+
+        $updateSql = "UPDATE vehicles SET vehicle_owner = ?, vehicle_number = ?, vehicle_weight = ?, vehicle_status = ? WHERE vehicle_id = ?";
+        if ($updateStmt = $conn->prepare($updateSql)) {
+            $updateStmt->bind_param("ssiii", $vehicle_owner, $vehicle_number, $vehicle_weight, $status, $vehicle_id);
+            if ($updateStmt->execute()) {
+                $response = ['status' => true, 'id' => $vehicle_id, 'message' => "Vehicle updated successfully"];
+            } else {
+                $response = ['status' => false, 'error' => $updateStmt->error, 'message' => "Error updating vehicle"];
+            }
+            $updateStmt->close();
         } else {
-            $error = $stmt->error;
-            $stmt->close();
-            $response = ['status' => false, 'error' => $error, 'message' => "Error while inserting Vehicle"];
+            $response = ['status' => false, 'error' => $conn->error, 'message' => "Failed to prepare update statement"];
         }
     } else {
-        $response = ['status' => false, 'error' => $conn->error, 'message' => "Error while inserting Vehicle"];
+        // Check if vehicle_number already exists before inserting
+        $checkSql = "SELECT vehicle_id FROM vehicles WHERE vehicle_number = ?";
+        if ($checkStmt = $conn->prepare($checkSql)) {
+            $checkStmt->bind_param("s", $vehicle_number);
+            $checkStmt->execute();
+            $result = $checkStmt->get_result();
+
+            if ($row = $result->fetch_assoc()) {
+                // Vehicle number already exists
+                $response = ['status' => false, 'message' => "Vehicle number already exists", 'id' => $row['vehicle_id']];
+            } else {
+                $checkStmt->close();
+
+                // Insert new vehicle
+                $insertSql = "INSERT INTO vehicles (vehicle_owner, vehicle_number, vehicle_created_at, vehicle_status, vehicle_weight)
+                              VALUES (?, ?, ?, ?, ?)";
+                if ($insertStmt = $conn->prepare($insertSql)) {
+                    $insertStmt->bind_param("sssii", $vehicle_owner, $vehicle_number, $created_at, $status, $vehicle_weight);
+                    if ($insertStmt->execute()) {
+                        $insertedId = $insertStmt->insert_id;
+                        $response = ['status' => true, 'id' => $insertedId, 'message' => "Vehicle inserted successfully"];
+                    } else {
+                        $response = ['status' => false, 'error' => $insertStmt->error, 'message' => "Error inserting vehicle"];
+                    }
+                    $insertStmt->close();
+                } else {
+                    $response = ['status' => false, 'error' => $conn->error, 'message' => "Failed to prepare insert statement"];
+                }
+            }
+        } else {
+            $response = ['status' => false, 'error' => $conn->error, 'message' => "Failed to prepare vehicle number check statement"];
+        }
     }
+
     echo json_encode($response);
 }
