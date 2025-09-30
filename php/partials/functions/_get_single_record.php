@@ -12,17 +12,20 @@ function getWeighingRecordById($conn, $data)
     $record = null;
 
     $sql = "SELECT 
-                wr.*, 
-                COALESCE(GROUP_CONCAT(w.weight ORDER BY w.weighingrecord_id), '') AS weights
-            FROM 
-                weighing_record wr
-            LEFT JOIN 
-                weights w ON wr.weighingrecord_id = w.weighingrecord_id
-            WHERE 
-                wr.ticket_no = ?
-            GROUP BY 
-                wr.weighingrecord_id
-            LIMIT 1";
+            wr.*, 
+            COALESCE(GROUP_CONCAT(w.weight ORDER BY w.weight_count), '') AS weights,
+            COALESCE(GROUP_CONCAT(w.material ORDER BY w.weight_count), '') AS materials,
+            COALESCE(GROUP_CONCAT(w.charges ORDER BY w.weight_count), '') AS charges
+        FROM 
+            weighing_record wr
+        LEFT JOIN 
+            weights w ON wr.weighingrecord_id = w.weighingrecord_id
+        WHERE 
+            wr.ticket_no = ?
+        GROUP BY 
+            wr.weighingrecord_id
+        LIMIT 1";
+
 
     if ($stmt = $conn->prepare($sql)) {
         $stmt->bind_param("s", $ticketNo);

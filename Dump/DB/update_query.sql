@@ -7,3 +7,4 @@ ALTER TABLE `weights` ADD `material_id` INT NOT NULL AFTER `weightment_type`;
 ALTER TABLE `parties` ADD UNIQUE(`party_email`);
 ALTER TABLE `parties` CHANGE `parties_id` `party_id` INT(11) NOT NULL AUTO_INCREMENT;
 ALTER TABLE `vehicles` ADD UNIQUE(`vehicle_number`);
+ALTER TABLE `weights` CHANGE `material_id` `material` VARCHAR(50) NOT NULL;

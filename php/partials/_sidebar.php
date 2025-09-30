@@ -24,7 +24,7 @@
               <a class="nav-link" data-bs-target="#components-nav" data-bs-toggle="collapse" href="#" aria-expanded="true">
                   <i class="fa-solid fa-folder-tree"></i><span>Masters</span><i class="fa fa-angle-down ms-auto" aria-hidden="true"></i>
               </a>
-              <ul id="components-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav" style="">
+              <ul id="components-nav" class="nav-content collapse show" data-bs-parent="#sidebar-nav">
                   <li>
                       <a href="<?php echo $asset_base ?>dashboard/vehicles">
                           <i class=" fa-solid fa-truck"></i><span>Vehicle</span>

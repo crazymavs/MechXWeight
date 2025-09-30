@@ -4,14 +4,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function insertWeights($conn, $weighing_id, $weighment_type, $weights)
+function insertWeights($conn, $weighing_id, $weighment_type, $weights, $materials = [], $charges = [])
 {
     $weighment_type = isset($weighment_type) ? $weighment_type : 1;
     $checkStmt = $conn->prepare("SELECT 1 FROM weights WHERE weighingrecord_id = ? AND weight_count = ? LIMIT 1");
-    $insertStmt = $conn->prepare("INSERT INTO weights (weighingrecord_id, weightment_type, weight, weight_count, weighed_on) VALUES (?, ?, ?, ?, ?)");
-
+    $insertStmt = $conn->prepare("INSERT INTO weights (weighingrecord_id, weightment_type, weight, material, charges, weight_count, weighed_on) VALUES (?, ?, ?, ?, ?, ?, ?)");
     foreach ($weights as $index => $weight) {
         $weight_count = $index + 1;
+        $material = isset($materials[$index]) ? $materials[$index] : null;
+        $charge = isset($charges[$index]) ? $charges[$index] : null;
 
         $checkStmt->bind_param("ii", $weighing_id, $weight_count);
         $checkStmt->execute();
@@ -19,7 +20,7 @@ function insertWeights($conn, $weighing_id, $weighment_type, $weights)
 
         if ($checkStmt->num_rows === 0) {
             $weighed_on = date('Y-m-d H:i:s');
-            $insertStmt->bind_param("iiiis", $weighing_id, $weighment_type, $weight, $weight_count, $weighed_on);
+            $insertStmt->bind_param("iiisdis", $weighing_id, $weighment_type, $weight, $material, $charge, $weight_count, $weighed_on);
             $insertStmt->execute();
         }
     }
@@ -28,19 +29,30 @@ function insertWeights($conn, $weighing_id, $weighment_type, $weights)
     $insertStmt->close();
 }
 
+
 function insertFirstWeight($conn, $data)
 {
-    $weighment_type = isset($data['weighment_type']) ? $data['weighment_type'] : null;
+    $weighment_type = isset($data['weighment_type']) ? $data['weighment_type'] : 1;
     $ticket_no      = isset($data['ticket_no']) ? $data['ticket_no'] : null;
     $vehicle_no     = isset($data['vehicle_no']) ? $data['vehicle_no'] : null;
     $party_name     = isset($data['party_name']) ? $data['party_name'] : null;
-    $material       = isset($data['material']) ? $data['material'] : null;
-    $charges        = isset($data['charges']) ? $data['charges'] : null;
+    $charges        = isset($data['charges']) ? $data['charges'] : 0;
     $weights = [];
+    $materials = [];
+    $charges = [];
 
     foreach ($data as $key => $value) {
         if (strpos($key, 'weight_') === 0 && !empty($value)) {
-            $weights[] = $value;
+            $index = (int)str_replace('weight_', '', $key);
+            $weights[$index] = $value;
+        }
+        if (strpos($key, 'material_') === 0) {
+            $index = (int)str_replace('material_', '', $key);
+            $materials[$index] = $value;
+        }
+        if (strpos($key, 'charges_') === 0) {
+            $index = (int)str_replace('charges_', '', $key);
+            $charges[$index] = $value;
         }
     }
 
@@ -56,16 +68,16 @@ function insertFirstWeight($conn, $data)
     if ($row) {
         // Duplicate ticket_no
         $weighing_id = $row['weighingrecord_id'];
-        insertWeights($conn, $weighing_id, $weighment_type, $weights);
+        insertWeights($conn, $weighing_id, $weighment_type, $weights, $materials, $charges);
         $response = ['status' => true, 'message' => 'Weigh Record Exists, updating weights.'];
     } else {
 
         $sql = "INSERT INTO `weighing_record`
-                (`weighment_type`, `ticket_no`, `vehicle_number`, `party_name`, `material`, `charges`, `created_at`,`is_pending` ) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                (`weighment_type`, `ticket_no`, `vehicle_number`, `party_name`, `charges`, `created_at`,`is_pending` ) 
+                VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
         $is_pending = 1;
-        $stmt->bind_param("iisssisi", $weighment_type, $ticket_no, $vehicle_no, $party_name, $material, $charges, $created_at, $is_pending);
+        $stmt->bind_param("iissisi", $weighment_type, $ticket_no, $vehicle_no, $party_name, $charges, $created_at, $is_pending);
         $res = $stmt->execute();
         if ($res) {
             $response = ['status' => true, 'message' => 'Weighing record inserted.'];
@@ -73,7 +85,7 @@ function insertFirstWeight($conn, $data)
             $response = ['status' => false, 'message' => 'Failed to insert weighing recoed'];
         }
         $weighing_id = $conn->insert_id;
-        insertWeights($conn, $weighing_id, $weighment_type, $weights);
+        insertWeights($conn, $weighing_id, $weighment_type, $weights, $materials, $charges);
         $stmt->close();
     }
 

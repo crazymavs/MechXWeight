@@ -36,22 +36,19 @@
 				<div class="d-flex gap-3 material_detail mb-3">
 					<div class="input-group">
 						<span class="input-group-text material-index-label"><strong>Material 1</strong></span>
-						<input type="text" class="form-control" id="weighment_form_material" name="material" value="Empty">
+						<input type="text" class="form-control" id="weighment_form_material_1" name="material_1" value="Empty">
 						<div class="suggestionList" calss="materials_suggestions"></div>
-					</div>
-					<div class="input-group h-fit">
-						<span class="input-group-text"><strong>Charges</strong></span>
-						<input type="text" class="form-control" id="weighment_form_charges" name="charges" value="">
-						<span class="input-group-text"><strong>₹</strong></span>
 					</div>
 					<div class="input-group ">
 						<span class="input-group-text"><strong>Weight</strong></span>
 						<input type="text" class="form-control" id="weighment_form_weight_1" name="weight_1" value="">
 						<span class="input-group-text"><strong>kg</strong></span>
 					</div>
-
-
-
+					<div class="input-group h-fit">
+						<span class="input-group-text"><strong>Charges</strong></span>
+						<input type="text" class="form-control" id="weighment_form_charges_1" name="charges_1" value="">
+						<span class="input-group-text"><strong>₹</strong></span>
+					</div>
 					<button type="button" class="btn btn-danger btn-sm ms-2 delete-material-btn">Delete</button>
 				</div>
 			</div>
@@ -72,7 +69,7 @@
 			</div>
 		</div>
 		<div class="col-md-12 mt-3 text-end">
-			<button type="reset" class="btn btn-secondary">Clear</button>
+			<button type="reset" class="btn btn-secondary reset_button">Clear</button>
 			<button type="submit" class="btn btn-primary">Save</button>
 		</div>
 	</div>
@@ -120,24 +117,76 @@
 	const weightment_form = document.querySelector('#weightment_form')
 	const addMaterialButton = document.querySelector('#add_material_button')
 	const materialDetail_container = document.querySelector(".material_detail").parentNode;
+
+	const reset_button = document.querySelector('.reset_button');
+
+	reset_button.addEventListener('click', () => {
+		const allMaterials = materialDetail_container.querySelectorAll('.material_detail');
+
+		// If there's more than one, remove extras
+		if (allMaterials.length > 1) {
+			for (let i = allMaterials.length - 1; i > 0; i--) {
+				allMaterials[i].remove();
+			}
+		}
+
+		// Clear inputs in the first material_detail
+		const firstMaterial = allMaterials[0];
+		firstMaterial.querySelectorAll('input').forEach(input => {
+			input.value = '';
+		});
+
+		// Update label and input IDs/names to index 1
+		const label = firstMaterial.querySelector('.material-index-label');
+		if (label) {
+			label.innerHTML = `<strong>Material 1</strong>`;
+		}
+		firstMaterial.querySelectorAll('input').forEach(input => {
+			if (input.id) {
+				const baseId = input.id.replace(/_[^_]*$/, "");
+				const baseName = input.name.replace(/_[^_]*$/, "");
+				input.id = `${baseId}_1`;
+				input.name = `${baseName}_1`;
+			}
+		});
+	});
+
 	addMaterialButton.addEventListener("click", () => {
 		const original = document.querySelector(".material_detail");
 		const clone = original.cloneNode(true); // Deep clone including children
-		// Optionally clear input values in cloned node
-		clone.querySelectorAll("input").forEach(input => input.value = "");
+		// Clear input values in cloned node
+		clone.querySelectorAll("input").forEach(input => {
+			input.value = "";
+		});
 		materialDetail_container.appendChild(clone);
-		// Update all material index labels
-		const clonedInput = clone.querySelectorAll("input")[0]
-
-		setupAutocomplete(clonedInput, materials, fuzzySearch);
+		// Update all material index labels and IDs
 		const allMaterials = materialDetail_container.querySelectorAll(".material_detail");
+
 		allMaterials.forEach((materialDiv, index) => {
+			// Update label text
 			const label = materialDiv.querySelector(".material-index-label");
 			if (label) {
 				label.innerHTML = `<strong>Material ${index + 1}</strong>`;
 			}
+
+			// Update IDs of inputs inside this materialDiv
+			materialDiv.querySelectorAll("input").forEach(input => {
+				if (input.id) {
+					// Remove any existing trailing index part and append new index
+					// const baseId = input.id.replace(/-\d+$/, "");
+					const baseId = input.id.replace(/_[^_]*$/, "");
+					const basename = input.name.replace(/_[^_]*$/, "");
+					input.id = `${baseId}_${index + 1}`;
+					input.name = `${basename}_${index + 1}`;
+				}
+			});
 		});
+
+		// Optionally setup autocomplete for the newly cloned input with updated id
+		const clonedInput = clone.querySelectorAll("input")[0];
+		setupAutocomplete(clonedInput, materials, fuzzySearch);
 	});
+
 	// Delegate delete button clicks using Event Delegation for dynamically cloned nodes
 	materialDetail_container.addEventListener("click", (e) => {
 		if (e.target.classList.contains("delete-material-btn")) {
@@ -167,6 +216,10 @@
 		for (const [name, value] of formData.entries()) {
 			data[name] = value;
 		}
+		console.log({
+			formData,
+			data
+		})
 		fetch(apiBase, {
 				method: 'POST',
 				headers: {
@@ -201,6 +254,7 @@
 			.catch(error => {
 				console.error('Error:', error);
 			});
+		reset_button.click()
 	})
 	let allParties = [];
 	const input = document.getElementById("weighment_form_party_name");
@@ -222,26 +276,27 @@
 	} = setupAutocomplete(vehicleInput, vehicleNumbers, fuzzySearch);
 
 	async function getAllVehicleNumbers() {
-		const res = await getAllVehicles(); // Adjust API to get vehicle data
+		const res = await getAllVehiclesAPI(); // Adjust API to get vehicle data
 		const vehicleNumberArr = res.data.map(item => item.vehicle_number);
 		vehicleNumbers = vehicleNumberArr;
 		updateVehicleSuggestionList(vehicleNumberArr);
 	}
 
-	let ticketNumbers = [];
-	const ticketInput = document.getElementById("weighment_form_ticket_no");
-	const {
-		updateSuggstionList: updateTicketSuggestionList
-	} = setupAutocomplete(ticketInput, ticketNumbers, fuzzySearch);
+	// let ticketNumbers = [];
+	// const ticketInput = document.getElementById("weighment_form_ticket_no");
+	// const {
+	// 	updateSuggstionList: updateTicketSuggestionList
+	// } = setupAutocomplete(ticketInput, ticketNumbers, fuzzySearch);
 
-	async function getAllTicketNumbers() {
-		const res = await getAllTickets(); // Adjust API to get ticket data
-		const ticketNumberArr = res.data.map(item => item.ticket_number);
-		ticketNumbers = ticketNumberArr;
-		updateTicketSuggestionList(ticketNumberArr);
-	}
+	// async function getAllTicketNumbers() {
+	// 	const res = await getAllTickets(); // Adjust API to get ticket data
+	// 	const ticketNumberArr = res.data.map(item => item.ticket_number);
+	// 	ticketNumbers = ticketNumberArr;
+	// 	updateTicketSuggestionList(ticketNumberArr);
+	// }
+
 	let materials = [];
-	const materialInput = document.getElementById("weighment_form_material");
+	const materialInput = document.getElementById("weighment_form_material_1");
 	const {
 		updateSuggstionList: updateMaterialSuggestionList
 	} = setupAutocomplete(materialInput, materials, fuzzySearch);

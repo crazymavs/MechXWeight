@@ -1,21 +1,23 @@
 function setupAutocomplete(input, items, fuzzySearchFn) {
   let suggestionList = items;
-  // console.log(input, items, fuzzySearchFn);
+
   function updateSuggstionList(newItems) {
     suggestionList = newItems;
   }
-  input.addEventListener("input", function () {
+
+  function showSuggestions() {
     const parent = input.parentNode;
     const slc = parent.querySelector(".suggestionList");
 
     const val = input.value.toLowerCase();
     slc.innerHTML = "";
     slc.style.border = "1px solid #ddd";
+
     if (!val) {
       slc.style.border = "none";
       return;
     }
-    console.log({ input, slc });
+
     suggestionList
       .filter((item) => fuzzySearchFn(item, val))
       .forEach((item) => {
@@ -28,6 +30,19 @@ function setupAutocomplete(input, items, fuzzySearchFn) {
         };
         slc.appendChild(div);
       });
+  }
+
+  input.addEventListener("input", showSuggestions);
+  input.addEventListener("focus", showSuggestions);
+
+  // Optionally hide suggestions on blur (clicking outside)
+  input.addEventListener("blur", () => {
+    const parent = input.parentNode;
+    const slc = parent.querySelector(".suggestionList");
+    setTimeout(() => {
+      slc.style.border = "none";
+      slc.innerHTML = "";
+    }, 200); // delay to allow click event on suggestion div
   });
 
   return { updateSuggstionList };
