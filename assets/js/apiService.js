@@ -13,7 +13,6 @@ const callApi = async (jsonData) => {
     }
 
     const data = await response.json();
-    console.log({ data });
     return data;
   } catch (error) {
     throw error;
@@ -52,7 +51,6 @@ const getVehicleByIdAPI = async (vehicle_id) => {
     actionMethod: "getvehiclebyid",
     vehicle_id,
   });
-  console.log({ res });
   return res;
 };
 
@@ -72,7 +70,6 @@ const getPartyByIdAPI = async (party_id) => {
     actionMethod: "getpartybyid",
     party_id,
   });
-  console.log({ res });
   return res;
 };
 
@@ -105,9 +102,47 @@ const getMaterialByIdAPI = async (material_id) => {
     actionMethod: "getmaterialbyid",
     material_id,
   });
-  console.log({ res });
   return res;
 };
 
 const getAllMaterialsAPI = async () =>
   await callApi({ actionMethod: "getallmaterials" });
+
+const saveLabelConfigAPI = async (labelConfigData) => {
+  const res = await callApi({
+    actionMethod: "savelabelconfig",
+    ...labelConfigData,
+  });
+  return res;
+};
+
+const getLabelConfigAPI = async () =>
+  await callApi({ actionMethod: "getlabelconfig" });
+
+const getRecordStatusAPI = async () =>
+  await callApi({ actionMethod: "getrecordstatus" });
+
+const insertRecordAPI = async (data) => {
+  const res = await callApi({
+    actionMethod: "insertrecord",
+    ...data,
+  });
+  return res;
+};
+
+const getAllweingRecordsAPI = async () =>
+  await callApi({ actionMethod: "getalltransactions" });
+
+const getPendingweingRecordsAPI = async () =>
+  await callApi({ actionMethod: "getpendingtransactions" });
+
+const getCompletedweingRecordsAPI = async () =>
+  await callApi({ actionMethod: "getcompletedtransactions" });
+
+const updateTransactionStatusAPI = async (data) => {
+  const res = await callApi({
+    actionMethod: "updatetransactionstatus",
+    ...data,
+  });
+  return res;
+};

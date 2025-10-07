@@ -15,37 +15,64 @@
 					<option value="5">Preloaded</option>
 				</select>
 			</div> -->
-			<div class="d-flex gap-3">
-				<div class="input-group mb-3 ">
-					<span class="input-group-text"><strong>Party Name</strong></span>
-					<input type="text" class="form-control" id="weighment_form_party_name" name="party_name" value="">
-					<div class="suggestionList" id="party_suggestions"></div>
-				</div>
-				<div class="input-group mb-3">
-					<span class="input-group-text"><strong>Vehicle_no No.</strong></span>
-					<input type="text" class="form-control" id="weighment_form_vehicle_no" name="vehicle_no" value="">
-					<div class="suggestionList" id="vehicle_number_suggestions"></div>
-				</div>
-				<div class="input-group mb-3">
-					<span class="input-group-text"><strong>Ticket No.</strong></span>
-					<input type="text" class="form-control" id="weighment_form_ticket_no" name="ticket_no" value="">
 
+
+			<div class="d-flex gap-3 ">
+				<div class="row my-3 col-md-6">
+					<h5 class="card-title m-0 p-0 ps-2 pb-2"><strong>Create Weignment</strong> <strong> Ticket No: </strong>
+						<span id="ticket_number">New</span>
+					</h5>
+					<h5 class="fs-6"><strong>Date&Time: </strong><?= $toDate ?> <?= date('H:i') ?> </h5>
+					<div class="input-group mb-3 mt-3 ">
+						<span class="input-group-text"><strong>Party Name</strong></span>
+						<input type="text" class="form-control" id="weighment_form_party_name" name="party_name" value="">
+						<div class="suggestionList" id="party_suggestions"></div>
+					</div>
+					<div class="input-group mb-3">
+						<span class="input-group-text"><strong>Vehicle No.</strong></span>
+						<input type="text" class="form-control" id="weighment_form_vehicle_no" name="vehicle_number" value="">
+						<div class="suggestionList" id="vehicle_number_suggestions"></div>
+					</div>
+					<div class="input-group mb-3 d-none">
+						<span class="input-group-text"><strong>Ticket No.</strong></span>
+						<input type="text" class="form-control" id="weighment_form_ticket_no" name="ticket_no" value="">
+
+					</div>
+				</div>
+
+				<div class="row my-3 col-md-6">
+					<div class="input-group">
+						<input type="text" class="form-control text-light bg-dark text-center" name="" id="indicatorWeight" readonly value="14,980">
+						<span class="input-group-text text-light bg-dark"><strong>kg</strong></span>
+					</div>
+				</div>
+			</div>
+			<div class="additional_fields_container d-flex gap-3 mb-3">
+				<div class="input-group">
+					<span class="input-group-text material-index-label"><strong>Field 1</strong></span>
+					<input type="text" class="form-control" id="weighment_form_material_1" name="field1" value="Empty">
+					<!-- <div class="suggestionList" calss="materials_suggestions"></div> -->
+				</div>
+				<div class="input-group">
+					<span class="input-group-text material-index-label"><strong>Field 2</strong></span>
+					<input type="text" class="form-control" id="weighment_form_material_1" name="field2" value="Empty">
+					<!-- <div class="suggestionList" calss="materials_suggestions"></div> -->
 				</div>
 			</div>
 			<div class="material_detials_container">
 				<div class="d-flex gap-3 material_detail mb-3">
 					<div class="input-group">
-						<span class="input-group-text material-index-label"><strong>Material 1</strong></span>
+						<span class="input-group-text material-indexed-label"><strong>Material 1</strong></span>
 						<input type="text" class="form-control" id="weighment_form_material_1" name="material_1" value="Empty">
 						<div class="suggestionList" calss="materials_suggestions"></div>
 					</div>
 					<div class="input-group ">
-						<span class="input-group-text"><strong>Weight</strong></span>
+						<span class="input-group-text weight-indexed-label"><strong>Weight</strong></span>
 						<input type="text" class="form-control" id="weighment_form_weight_1" name="weight_1" value="">
 						<span class="input-group-text"><strong>kg</strong></span>
 					</div>
 					<div class="input-group h-fit">
-						<span class="input-group-text"><strong>Charges</strong></span>
+						<span class="input-group-text charges-indexed-label"><strong>Charges</strong></span>
 						<input type="text" class="form-control" id="weighment_form_charges_1" name="charges_1" value="">
 						<span class="input-group-text"><strong>₹</strong></span>
 					</div>
@@ -60,7 +87,7 @@
 				<button type="button" class="btn btn-secondary" id="add_material_button">Add Item</button>
 
 			</div>
-			<div class="col-md-6 net_weight_wrapper">
+			<div class="col-md-6 net_weight_wrapper d-none">
 				<div class="input-group mb-3 net_weight_input">
 					<span class="input-group-text"><strong>Material 1 Net Weight</strong></span>
 					<input type="text" class="form-control" id="weighment_form_new_weight" disabled name="net_weight" value="0">
@@ -70,7 +97,8 @@
 		</div>
 		<div class="col-md-12 mt-3 text-end">
 			<button type="reset" class="btn btn-secondary reset_button">Clear</button>
-			<button type="submit" class="btn btn-primary">Save</button>
+			<button type="submit" class="btn btn-primary reset_button" name="keep_pending">Keep Pending</button>
+			<button type="submit" class="btn btn-success" name="save_transaction">Save Transaction</button>
 		</div>
 	</div>
 	<style>
@@ -110,6 +138,7 @@
 
 <script src="<?php echo $asset_base ?>assets/js/fussySearch.js"></script>
 <script src="<?php echo $asset_base ?>assets/js/setupAutoComplete.js"></script>
+<script src="<?php echo $asset_base ?>assets/js/utils.js"></script>
 
 
 <script>
@@ -119,6 +148,28 @@
 	const materialDetail_container = document.querySelector(".material_detail").parentNode;
 
 	const reset_button = document.querySelector('.reset_button');
+
+	function updateLabelInputs(labelData) {
+		for (const [field, value] of Object.entries(labelData)) {
+			let inputElem = document.querySelector(`input[name="${field}"]`);
+			if (inputElem) {
+				const closest = inputElem.parentNode;
+				const firstStrong = closest.querySelector('strong');
+				if (firstStrong) firstStrong.innerText = value;
+			} else {
+				inputElem2 = document.querySelector(`input[name^="${field}_"]`);
+				const closest = inputElem2.parentNode;
+				const firstStrong = closest.querySelector('strong');
+				if (firstStrong) firstStrong.innerText = value + "_1"
+			}
+		}
+	}
+
+	const fetchAll = async () => {
+		const d = await getLabelConfiguration()
+		updateLabelInputs(d.newLables)
+	}
+	fetchAll()
 
 	reset_button.addEventListener('click', () => {
 		const allMaterials = materialDetail_container.querySelectorAll('.material_detail');
@@ -163,10 +214,39 @@
 		const allMaterials = materialDetail_container.querySelectorAll(".material_detail");
 
 		allMaterials.forEach((materialDiv, index) => {
-			// Update label text
-			const label = materialDiv.querySelector(".material-index-label");
+			console.log({
+				materialDiv,
+				index,
+				newLabels
+			});
+
+			// // Update label text
+			const label = materialDiv.querySelector(".material-indexed-label");
 			if (label) {
-				label.innerHTML = `<strong>Material ${index + 1}</strong>`;
+				const materialLabel = newLabels['material'] || 'Material';
+				console.log({
+					materialLabel,
+					label
+				});
+				label.innerHTML = `<strong>${materialLabel}_${index + 1}</strong>`;
+			}
+			const label2 = materialDiv.querySelector(".weight-indexed-label");
+			if (label2) {
+				const weightLabel = newLabels['weight'] || 'Weight';
+				console.log({
+					weightLabel,
+					label2
+				});
+				label2.innerHTML = `<strong>${weightLabel}_${index + 1}</strong>`;
+			}
+			const label3 = materialDiv.querySelector(".charges-indexed-label");
+			if (label3) {
+				const chargesLabel = newLabels['charges'] || 'Charges';
+				console.log({
+					chargesLabel,
+					label3
+				});
+				label3.innerHTML = `<strong>${chargesLabel}_${index + 1}</strong>`;
 			}
 
 			// Update IDs of inputs inside this materialDiv
@@ -207,10 +287,20 @@
 			}
 		}
 	});
-	weightment_form.addEventListener('submit', (e) => {
+
+	let pressedButton = null;
+
+	weightment_form.querySelectorAll('button[type="submit"]').forEach(button => {
+		button.addEventListener('click', (e) => {
+			pressedButton = e.target.value || e.target.name;
+		});
+	});
+
+	weightment_form.addEventListener('submit', async (e) => {
 		e.preventDefault()
+		console.log('Button pressed:', pressedButton);
+
 		const formData = new FormData(event.target);
-		formData.append('actionMethod', 'addfirstweight')
 
 		const data = {};
 		for (const [name, value] of formData.entries()) {
@@ -220,41 +310,39 @@
 			formData,
 			data
 		})
-		fetch(apiBase, {
-				method: 'POST',
-				headers: {
-					"Content-Type": "application/json"
-				},
-				body: JSON.stringify(data) // Just pass FormData—do NOT set headers
-			})
-			.then(response => response.json())
-			.then(result => {
-				// console.log('Success:', result);
-				// Add any further handling here
-				if (result.status) {
-					// alert("success")
-					const toastLiveExample = document.getElementById('successToast');
-					$('.success-toast-body').text(result.message)
-					const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
-						delay: 3000,
-						autohide: true
-					});
-					toastBootstrap.show();
-				} else {
-					// alert('error')
-					const toastLiveExample = document.getElementById('errorToast');
-					$('.error-toast-body').text(result.message)
-					const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
-						delay: 3000,
-						autohide: true
-					});
-					toastBootstrap.show();
-				}
-			})
-			.catch(error => {
-				console.error('Error:', error);
+		if (pressedButton === 'keep_pending') {
+			data['status'] = 1
+		} else if (pressedButton === 'save_transaction') {
+			data['status'] = 2
+		}
+		data['ticket_no'] = Math.random() * 1000000
+		const res = await insertRecordAPI(data);
+		console.log({
+			res
+		})
+		if (res.status) {
+			// alert("success")
+			const toastLiveExample = document.getElementById('successToast');
+			$('.success-toast-body').text(res.message)
+			const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+				delay: 3000,
+				autohide: true
 			});
+			toastBootstrap.show();
+		} else {
+			// alert('error')
+			const toastLiveExample = document.getElementById('errorToast');
+			$('.error-toast-body').text(res.message)
+			const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+				delay: 3000,
+				autohide: true
+			});
+			toastBootstrap.show();
+		}
+
 		reset_button.click()
+		console.log(fetchAllTransactions);
+		fetchAllTransactions()
 	})
 	let allParties = [];
 	const input = document.getElementById("weighment_form_party_name");
@@ -307,6 +395,7 @@
 		materials = materialNameArr;
 		updateMaterialSuggestionList(materialNameArr);
 	}
+	getLabelConfiguration()
 	getAllVehicleNumbers()
 	getAllparties()
 	getAllMaterials()

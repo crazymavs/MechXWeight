@@ -6,12 +6,11 @@
                 <th>Ticket No.</th>
                 <th>Date</th>
                 <th>Time</th>
-                <!-- <th>Weighment Type</th> -->
-                <th>Vehicle No.</th>
-                <th>Party Name</th>
-                <th>Material</th>
-                <th>Weight</th>
-                <th>Charges</th>
+                <th id="th_vehicle_number">Vehicle No.</th>
+                <th id="th_party_name">Party Name</th>
+                <th id="th_material">Material</th>
+                <th id="th_weight">Weight</th>
+                <th id="th_charges">Charges</th>
                 <th>Net Weight</th>
                 <th>Status</th>
                 <th>Action</th>
@@ -36,9 +35,15 @@
 
         </tbody>
     </table>
+    <button id="export-csv">Export CSV</button>
 </section>
-
+<script src="<?php echo $asset_base ?>assets/js/utils.js"></script>
+<?php
+$parts = explode('/', $url);
+$subRoute = $parts[1];
+?>
 <script>
+    let recordStatuses = [];
     const data = {
         "actionMethod": "getPendingWeights"
     }
@@ -54,12 +59,95 @@
         } else if (elem.value === "print") {
             // Call your 'print' function here
             printRecord();
+        } else if (elem.value === "complete") {
+            // Call your 'print' function here
+            updateTransaction(ticketNo, 2);
+        } else if (elem.value === "delete") {
+            // Call your 'print' function here
+            updateTransaction(ticketNo, 3);
+        } else if (elem.value === "pending") {
+            // Call your 'print' function here
+            updateTransaction(ticketNo, 1);
         }
         elem.value = 'choose'
     }
 
-    // const addMaterialButton = document.querySelector('#add_material_button')
 
+    async function updateTransaction(ticketNo, newStatus) {
+        const res = await updateTransactionStatusAPI({
+            ticketNo: ticketNo,
+            new_status: newStatus
+        });
+        if (res.status) {
+            // alert("success")
+            const toastLiveExample = document.getElementById('successToast');
+            $('.success-toast-body').text(res.message)
+            const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                delay: 3000,
+                autohide: true
+            });
+            toastBootstrap.show();
+        } else {
+            // alert('error')
+            const toastLiveExample = document.getElementById('errorToast');
+            $('.error-toast-body').text(res.message)
+            const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
+                delay: 3000,
+                autohide: true
+            });
+            toastBootstrap.show();
+        }
+    }
+
+    function updateTableHeaderLabels(labelNames) {
+        const mappings = {
+            "th_vehicle_number": labelNames.vehicle_number || "Vehicle No.",
+            "th_party_name": labelNames.party_name || "Party Name",
+            "th_material": labelNames.material || "Material",
+            "th_weight": labelNames.weight || "Weight",
+            "th_charges": labelNames.charges || "Charges"
+        };
+
+        Object.entries(mappings).forEach(([id, label]) => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.textContent = label;
+            }
+        });
+    }
+
+    const fetchData = async () => {
+        const d = await getLabelConfiguration()
+
+        updateTableHeaderLabels(d.newLables);
+        const record_statuses = await getRecordStatusAPI();
+
+        recordStatuses = record_statuses.data;
+
+        tbody.innerHTML = '';
+        let allRecords;
+        const route = <?= json_encode($subRoute) ?>;
+
+
+        if (route === 'pendingtransactions') {
+            allRecords = await getPendingweingRecordsAPI();
+        } else if (route === 'completedtransactions') {
+            allRecords = await getCompletedweingRecordsAPI();
+        } else {
+            allRecords = await getAllweingRecordsAPI();
+        }
+        allRecords.data.forEach(record => {
+            tbody.appendChild(createRow(record));
+        });
+    }
+    fetchData()
+
+    async function fetchAllTransactions() {
+        allRecords = await getAllweingRecordsAPI();
+        allRecords.data.forEach(record => {
+            tbody.appendChild(createRow(record));
+        });
+    }
     async function fetchExistingData(ticketNo) {
         try {
             const response = await fetch("http://localhost/mechxweight/api", {
@@ -78,9 +166,7 @@
             const Fetcheddata = await response.json();
             // Handle the fetched data here
             const data = Fetcheddata.data
-            console.log({
-                data
-            })
+
             const w1 = data.weights.split(',')[0] ?? 0;
             const w2 = data.weights.split(',')[1] ?? 0;
             const nw = Math.abs(w1 - w2);
@@ -100,26 +186,16 @@
 
                 const chargesField = document.getElementById(`weighment_form_charges_${idx + 1}`);
                 if (chargesField) chargesField.value = charges[idx] || '';
-                // You can add more logic if you want to display netWeight as well
-                // const netWeightField = document.getElementById(`weighment_form_new_weight_${idx + 1}`);
-                // if (netWeightField && netWeights[idx] !== undefined) netWeightField.value = netWeights[idx];
             });
 
             // Example: assuming your form fields have these IDs
-            document.getElementById('weighment_form_ticket_no').value = data.ticket_no || '';
+            document.getElementById('ticket_number').innerText = data.ticket_no || '';
             document.getElementById('weighment_form_vehicle_no').value = data.vehicle_number || '';
             document.getElementById('weighment_form_party_name').value = data.party_name || '';
-            // document.getElementById('weighment_form_material').value = data.material || '';
-            // document.getElementById('weighment_form_charges').value = data.charges || '';
-            // document.getElementById('weighment_form_weight_1').value = w1;
-            // document.getElementById('weighment_form_weight_2').value = w2;
-            // document.getElementById('weighment_form_new_weight').value = nw;
             window.scrollTo({
                 top: 0,
                 behavior: 'smooth'
             });
-            // Example: populate form fields
-            // document.getElementById('someField').value = data.someField;
         } catch (error) {
             console.error('There was a problem fetching the data:', error);
         }
@@ -142,34 +218,18 @@
             <td>${weight}</td>
             <td>${charges}</td>
             <td>${Math.abs(netweight)}</td>
-            <td>${record.is_pending ? "Pending" :"Completed"}</td>
+            <td>${recordStatuses.find(item=>item.status_id === record.status)?.label || "Unknown"}</td>
             <td>
                 <select id="actions"  class="form-select" onchange="handleSelect(this)">
                     <option value="choose" class="d-none" >Choose</option>
                     <option value="add">Add Record</option>
                     <option value="print">Print</option>
+                    <option value="complete">Complete</option>
+                    <option value="pending">Pending</option>
+                    <option value="delete">Delete</option>
                 </select>
             </td>
         `;
         return tr;
     }
-
-    // Clear existing rows if any
-
-    tbody.innerHTML = '';
-    fetch(apiBase, {
-            method: 'POST',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(data) // Just pass FormData—do NOT set headers
-        })
-        .then(response => response.json()).then(result => {
-            console.log(result)
-
-            // Loop through array and append rows
-            result.data.forEach(record => {
-                tbody.appendChild(createRow(record));
-            });
-        })
 </script>

@@ -17,6 +17,8 @@ $toDate = $today->format('Y-m-d');
 // HTML5 time format: HH:MM (seconds not accepted in input[type=time])
 $fromTime = '08:00';
 $toTime = '07:59';
+date_default_timezone_set('Asia/Kolkata');
+
 ?>
 
 <section class="section dashboard">
@@ -57,12 +59,6 @@ $toTime = '07:59';
 		<div class="col-md-8 col-xxxl-9"> <!-- Weight Secion -->
 			<div class="card">
 				<div class="card-body">
-					<div class="row my-3">
-						<div class="input-group">
-							<input type="text" class="form-control text-light bg-dark text-center" name="" id="indicatorWeight" readonly value="14,980">
-							<span class="input-group-text text-light bg-dark"><strong>kg</strong></span>
-						</div>
-					</div>
 					<!-- <hr class="mt-0 pb-3"> -->
 					<div class="row mb-3">
 						<?php

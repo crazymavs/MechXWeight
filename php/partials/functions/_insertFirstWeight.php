@@ -33,13 +33,14 @@ function insertWeights($conn, $weighing_id, $weighment_type, $weights, $material
 function insertFirstWeight($conn, $data)
 {
     $weighment_type = isset($data['weighment_type']) ? $data['weighment_type'] : 1;
-    $ticket_no      = isset($data['ticket_no']) ? $data['ticket_no'] : null;
-    $vehicle_no     = isset($data['vehicle_no']) ? $data['vehicle_no'] : null;
+    $ticket_no      = isset($data['ticket_no']) ? $data['ticket_no'] : 123;
+    $vehicle_no     = isset($data['vehicle_number']) ? $data['vehicle_number'] : null;
     $party_name     = isset($data['party_name']) ? $data['party_name'] : null;
     $charges        = isset($data['charges']) ? $data['charges'] : 0;
-    $weights = [];
-    $materials = [];
-    $charges = [];
+    $status         = isset($data['status']) ? $data['status'] : 1;
+    $weights        = [];
+    $materials      = [];
+    $charges        = [];
 
     foreach ($data as $key => $value) {
         if (strpos($key, 'weight_') === 0 && !empty($value)) {
@@ -73,11 +74,11 @@ function insertFirstWeight($conn, $data)
     } else {
 
         $sql = "INSERT INTO `weighing_record`
-                (`weighment_type`, `ticket_no`, `vehicle_number`, `party_name`, `charges`, `created_at`,`is_pending` ) 
+                (`weighment_type`, `ticket_no`, `vehicle_number`, `party_name`, `charges`, `created_at`,`status` ) 
                 VALUES (?, ?, ?, ?, ?, ?, ?)";
         $stmt = $conn->prepare($sql);
-        $is_pending = 1;
-        $stmt->bind_param("iissisi", $weighment_type, $ticket_no, $vehicle_no, $party_name, $charges, $created_at, $is_pending);
+
+        $stmt->bind_param("iissisi", $weighment_type, $ticket_no, $vehicle_no, $party_name, $charges, $created_at, $status);
         $res = $stmt->execute();
         if ($res) {
             $response = ['status' => true, 'message' => 'Weighing record inserted.'];

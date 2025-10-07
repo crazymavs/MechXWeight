@@ -4,24 +4,10 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function getPendingWeighingRecords($conn)
+function getCompletedWeighingTransactions($conn)
 {
     $records = [];
 
-    // $sql = "SELECT * FROM weighing_record ORDER BY created_at DESC";
-    // $sql = "SELECT 
-    //             wr.*, 
-    //             GROUP_CONCAT(w.weight ORDER BY w.weighingrecord_id) AS weights
-    //         FROM 
-    //             weighing_record wr
-    //         LEFT JOIN 
-    //             weights w ON wr.weighingrecord_id = w.weighingrecord_id
-    //         GROUP BY 
-    //             wr.weighingrecord_id
-    //         ORDER BY 
-    //             wr.created_at DESC;
-    // ";
-    // Join each weights row to its weighing_record. Each weight row is a separate output row.
     $sql = "
         SELECT
             wr.*,
@@ -35,6 +21,8 @@ function getPendingWeighingRecords($conn)
             weighing_record wr
         LEFT JOIN
             weights w ON wr.weighingrecord_id = w.weighingrecord_id
+        WHERE
+            wr.status = 2
         ORDER BY
             wr.created_at DESC, w.weight_count ASC
     ";

@@ -50,6 +50,7 @@ $routes = [
 	'api' => 'php/ajax/_mechxweightapi.php',
 	'error' => 'php/views/_error.php',
 	'dashboard' => 'php/views/_dashboard.php',
+	'labelconfig' => 'php/views/_labelconfig.php',
 ];
 
 // $isLoggedIn = true;

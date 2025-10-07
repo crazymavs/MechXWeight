@@ -55,12 +55,21 @@ if (strpos($contentType, 'application/json') !== false) {
 // echo json_encode($data);
 $action_method = $data['actionMethod'] ?? null;
 switch ($action_method) {
-    case 'addfirstweight':
+    case 'insertrecord':
         include_once 'php/partials/functions/_insertFirstWeight.php';
         return insertFirstWeight($conn, $data);
-    case 'getPendingWeights':
-        include_once 'php/partials/functions/_get_pending_records.php';
-        return getPendingWeighingRecords($conn, $data);
+    case 'updatetransactionstatus':
+        include_once 'php/partials/functions/_update_status.php';
+        return updateRecordStatus($conn, $data);
+    case 'getpendingtransactions':
+        include_once 'php/partials/functions/_get_pending_transactions.php';
+        return getPendingWeighingTransactions($conn, $data);
+    case 'getalltransactions':
+        include_once 'php/partials/functions/_get_all_transactions.php';
+        return getAllWeighingRecords($conn, $data);
+    case 'getcompletedtransactions':
+        include_once 'php/partials/functions/_get_completed_transactions.php';
+        return getCompletedWeighingTransactions($conn, $data);
     case 'getsinglerecordbyid':
         include_once 'php/partials/functions/_get_single_record.php';
         return getWeighingRecordById($conn, $data);
@@ -100,6 +109,15 @@ switch ($action_method) {
     case 'deletematerial':
         include_once 'php/partials/functions/_delete_material.php';
         return deleteMaterialById($conn, $data);
+    case 'savelabelconfig':
+        include_once 'php/partials/functions/_save_label_config.php';
+        return save_label_config($conn, $data);
+    case 'getlabelconfig':
+        include_once 'php/partials/functions/_get_label_config.php';
+        return get_label_config($conn, $data);
+    case 'getrecordstatus':
+        include_once 'php/partials/functions/_get_record_status.php';
+        return getAllRecordStatuses($conn, $data);
     default:
         echo json_encode([
             "status" => false,
