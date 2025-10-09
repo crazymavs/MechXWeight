@@ -50,12 +50,12 @@
 			<div class="additional_fields_container d-flex gap-3 mb-3">
 				<div class="input-group">
 					<span class="input-group-text material-index-label"><strong>Field 1</strong></span>
-					<input type="text" class="form-control" id="weighment_form_material_1" name="field1" value="Empty">
+					<input type="text" class="form-control" id="weighment_form_field_1" name="field1" value="Empty">
 					<!-- <div class="suggestionList" calss="materials_suggestions"></div> -->
 				</div>
 				<div class="input-group">
 					<span class="input-group-text material-index-label"><strong>Field 2</strong></span>
-					<input type="text" class="form-control" id="weighment_form_material_1" name="field2" value="Empty">
+					<input type="text" class="form-control" id="weighment_form_field_2" name="field2" value="Empty">
 					<!-- <div class="suggestionList" calss="materials_suggestions"></div> -->
 				</div>
 			</div>
@@ -146,125 +146,15 @@
 	const weightment_form = document.querySelector('#weightment_form')
 	const addMaterialButton = document.querySelector('#add_material_button')
 	const materialDetail_container = document.querySelector(".material_detail").parentNode;
-
+	let newLabels = {};
 	const reset_button = document.querySelector('.reset_button');
 
-	function updateLabelInputs(labelData) {
-		for (const [field, value] of Object.entries(labelData)) {
-			let inputElem = document.querySelector(`input[name="${field}"]`);
-			if (inputElem) {
-				const closest = inputElem.parentNode;
-				const firstStrong = closest.querySelector('strong');
-				if (firstStrong) firstStrong.innerText = value;
-			} else {
-				inputElem2 = document.querySelector(`input[name^="${field}_"]`);
-				const closest = inputElem2.parentNode;
-				const firstStrong = closest.querySelector('strong');
-				if (firstStrong) firstStrong.innerText = value + "_1"
-			}
-		}
-	}
-
-	const fetchAll = async () => {
-		const d = await getLabelConfiguration()
-		updateLabelInputs(d.newLables)
-	}
-	fetchAll()
-
-	reset_button.addEventListener('click', () => {
-		const allMaterials = materialDetail_container.querySelectorAll('.material_detail');
-
-		// If there's more than one, remove extras
-		if (allMaterials.length > 1) {
-			for (let i = allMaterials.length - 1; i > 0; i--) {
-				allMaterials[i].remove();
-			}
-		}
-
-		// Clear inputs in the first material_detail
-		const firstMaterial = allMaterials[0];
-		firstMaterial.querySelectorAll('input').forEach(input => {
-			input.value = '';
-		});
-
-		// Update label and input IDs/names to index 1
-		const label = firstMaterial.querySelector('.material-index-label');
-		if (label) {
-			label.innerHTML = `<strong>Material 1</strong>`;
-		}
-		firstMaterial.querySelectorAll('input').forEach(input => {
-			if (input.id) {
-				const baseId = input.id.replace(/_[^_]*$/, "");
-				const baseName = input.name.replace(/_[^_]*$/, "");
-				input.id = `${baseId}_1`;
-				input.name = `${baseName}_1`;
-			}
-		});
+	reset_button.addEventListener('click', (e) => {
+		clearForm(e);
 	});
 
-	addMaterialButton.addEventListener("click", () => {
-		const original = document.querySelector(".material_detail");
-		const clone = original.cloneNode(true); // Deep clone including children
-		// Clear input values in cloned node
-		clone.querySelectorAll("input").forEach(input => {
-			input.value = "";
-		});
-		materialDetail_container.appendChild(clone);
-		// Update all material index labels and IDs
-		const allMaterials = materialDetail_container.querySelectorAll(".material_detail");
-
-		allMaterials.forEach((materialDiv, index) => {
-			console.log({
-				materialDiv,
-				index,
-				newLabels
-			});
-
-			// // Update label text
-			const label = materialDiv.querySelector(".material-indexed-label");
-			if (label) {
-				const materialLabel = newLabels['material'] || 'Material';
-				console.log({
-					materialLabel,
-					label
-				});
-				label.innerHTML = `<strong>${materialLabel}_${index + 1}</strong>`;
-			}
-			const label2 = materialDiv.querySelector(".weight-indexed-label");
-			if (label2) {
-				const weightLabel = newLabels['weight'] || 'Weight';
-				console.log({
-					weightLabel,
-					label2
-				});
-				label2.innerHTML = `<strong>${weightLabel}_${index + 1}</strong>`;
-			}
-			const label3 = materialDiv.querySelector(".charges-indexed-label");
-			if (label3) {
-				const chargesLabel = newLabels['charges'] || 'Charges';
-				console.log({
-					chargesLabel,
-					label3
-				});
-				label3.innerHTML = `<strong>${chargesLabel}_${index + 1}</strong>`;
-			}
-
-			// Update IDs of inputs inside this materialDiv
-			materialDiv.querySelectorAll("input").forEach(input => {
-				if (input.id) {
-					// Remove any existing trailing index part and append new index
-					// const baseId = input.id.replace(/-\d+$/, "");
-					const baseId = input.id.replace(/_[^_]*$/, "");
-					const basename = input.name.replace(/_[^_]*$/, "");
-					input.id = `${baseId}_${index + 1}`;
-					input.name = `${basename}_${index + 1}`;
-				}
-			});
-		});
-
-		// Optionally setup autocomplete for the newly cloned input with updated id
-		const clonedInput = clone.querySelectorAll("input")[0];
-		setupAutocomplete(clonedInput, materials, fuzzySearch);
+	addMaterialButton.addEventListener("click", (e) => {
+		handleAddItemClick(e);
 	});
 
 	// Delegate delete button clicks using Event Delegation for dynamically cloned nodes
@@ -297,65 +187,14 @@
 	});
 
 	weightment_form.addEventListener('submit', async (e) => {
-		e.preventDefault()
-		console.log('Button pressed:', pressedButton);
-
-		const formData = new FormData(event.target);
-
-		const data = {};
-		for (const [name, value] of formData.entries()) {
-			data[name] = value;
-		}
-		console.log({
-			formData,
-			data
-		})
-		if (pressedButton === 'keep_pending') {
-			data['status'] = 1
-		} else if (pressedButton === 'save_transaction') {
-			data['status'] = 2
-		}
-		data['ticket_no'] = Math.random() * 1000000
-		const res = await insertRecordAPI(data);
-		console.log({
-			res
-		})
-		if (res.status) {
-			// alert("success")
-			const toastLiveExample = document.getElementById('successToast');
-			$('.success-toast-body').text(res.message)
-			const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
-				delay: 3000,
-				autohide: true
-			});
-			toastBootstrap.show();
-		} else {
-			// alert('error')
-			const toastLiveExample = document.getElementById('errorToast');
-			$('.error-toast-body').text(res.message)
-			const toastBootstrap = new bootstrap.Toast(toastLiveExample, {
-				delay: 3000,
-				autohide: true
-			});
-			toastBootstrap.show();
-		}
-
-		reset_button.click()
-		console.log(fetchAllTransactions);
-		fetchAllTransactions()
+		handleWeighmentFormSubmit(e, pressedButton);
 	})
+
 	let allParties = [];
 	const input = document.getElementById("weighment_form_party_name");
 	const {
 		updateSuggstionList
 	} = setupAutocomplete(input, allParties, fuzzySearch);
-
-	async function getAllparties() {
-		const res = await getAllParties();
-		const partyNameArr = res.data.map(item => item.party_name)
-		allParties = partyNameArr
-		updateSuggstionList(partyNameArr)
-	}
 
 	let vehicleNumbers = [];
 	const vehicleInput = document.getElementById("weighment_form_vehicle_no");
@@ -363,40 +202,9 @@
 		updateSuggstionList: updateVehicleSuggestionList
 	} = setupAutocomplete(vehicleInput, vehicleNumbers, fuzzySearch);
 
-	async function getAllVehicleNumbers() {
-		const res = await getAllVehiclesAPI(); // Adjust API to get vehicle data
-		const vehicleNumberArr = res.data.map(item => item.vehicle_number);
-		vehicleNumbers = vehicleNumberArr;
-		updateVehicleSuggestionList(vehicleNumberArr);
-	}
-
-	// let ticketNumbers = [];
-	// const ticketInput = document.getElementById("weighment_form_ticket_no");
-	// const {
-	// 	updateSuggstionList: updateTicketSuggestionList
-	// } = setupAutocomplete(ticketInput, ticketNumbers, fuzzySearch);
-
-	// async function getAllTicketNumbers() {
-	// 	const res = await getAllTickets(); // Adjust API to get ticket data
-	// 	const ticketNumberArr = res.data.map(item => item.ticket_number);
-	// 	ticketNumbers = ticketNumberArr;
-	// 	updateTicketSuggestionList(ticketNumberArr);
-	// }
-
 	let materials = [];
 	const materialInput = document.getElementById("weighment_form_material_1");
 	const {
 		updateSuggstionList: updateMaterialSuggestionList
 	} = setupAutocomplete(materialInput, materials, fuzzySearch);
-
-	async function getAllMaterials() {
-		const res = await getAllMaterialsAPI(); // Replace with your API call to fetch materials
-		const materialNameArr = res.data.map(item => item.material_name);
-		materials = materialNameArr;
-		updateMaterialSuggestionList(materialNameArr);
-	}
-	getLabelConfiguration()
-	getAllVehicleNumbers()
-	getAllparties()
-	getAllMaterials()
 </script>

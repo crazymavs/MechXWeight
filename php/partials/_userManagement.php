@@ -4,7 +4,7 @@
 
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Variance System Users</h5>
+                    <h5 class="card-title">Mecho-Tronix Users</h5>
                     <p>
                     <div class="row">
                         <div class="col-md-8">
@@ -80,6 +80,7 @@
                         <select class="form-select" id="user_is_admin">
                             <option value="0">User</option>
                             <option value="1">Admin</option>
+                            <option value="2">Super Admin</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -93,7 +94,7 @@
             </div>
 
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary close_user_form" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" id="btnSaveUserEdit">Save changes</button>
             </div>
         </div>
@@ -133,7 +134,7 @@
                     <span class="text-danger"><i class="fa-duotone fa-solid fa-triangle-exclamation"></i>&nbsp;&nbsp;Please note that this action is irriversible and cannot bring this user or user data back once deleted.</span>
                 </div>
             </div>
-            
+
 
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, Don't Delete</button>

@@ -70,14 +70,9 @@
 
               </ul>
           </li>
+
           <li class="nav-item">
-              <a class="nav-link collapsed" href="<?php echo $asset_base ?>dashboard/pending">
-                  <i class="fa-solid fa-list-radio"></i>
-                  <span>Transactions</span>
-              </a>
-          </li><!-- End New Solvent Yard -->
-          <li class="nav-item">
-              <a class="nav-link collapsed" href="<?php echo $asset_base ?>reports/oldsolventyard">
+              <a class="nav-link collapsed" href="<?php echo $asset_base ?>usermanagement">
                   <i class="fa-duotone fa-solid fa-scale-balanced"></i>
                   <span>Users</span>
               </a>

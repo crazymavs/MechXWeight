@@ -47,3 +47,26 @@ function setupAutocomplete(input, items, fuzzySearchFn) {
 
   return { updateSuggstionList };
 }
+
+async function getAllVehicleNumbers() {
+  const res = await getAllVehiclesAPI(); // Adjust API to get vehicle data
+  const vehicleNumberArr = res.data.map((item) => item.vehicle_number);
+  vehicleNumbers = vehicleNumberArr;
+  updateVehicleSuggestionList(vehicleNumberArr);
+}
+async function getAllparties() {
+  const res = await getAllParties();
+  const partyNameArr = res.data.map((item) => item.party_name);
+  allParties = partyNameArr;
+  updateSuggstionList(partyNameArr);
+}
+async function getAllMaterials() {
+  const res = await getAllMaterialsAPI(); // Replace with your API call to fetch materials
+  const materialNameArr = res.data.map((item) => item.material_name);
+  materials = materialNameArr;
+  updateMaterialSuggestionList(materialNameArr);
+}
+
+getAllVehicleNumbers();
+getAllparties();
+getAllMaterials();

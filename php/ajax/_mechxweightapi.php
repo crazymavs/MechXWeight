@@ -118,6 +118,18 @@ switch ($action_method) {
     case 'getrecordstatus':
         include_once 'php/partials/functions/_get_record_status.php';
         return getAllRecordStatuses($conn, $data);
+    case 'getUsers':
+        include_once 'php/partials/functions/_get_all_users.php';
+        return getAllUsers($conn, $data);
+    case 'get_user_types':
+        include_once 'php/partials/functions/_get_user_types.php';
+        return getUserTypes($conn);
+    case 'saveuser':
+        include_once 'php/partials/functions/_insert_user.php';
+        return adduser($conn, $data);
+    case 'deleteuser':
+        include_once 'php/partials/functions/_delete_user.php';
+        return deleteUser($conn, $data);
     default:
         echo json_encode([
             "status" => false,

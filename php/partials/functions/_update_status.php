@@ -2,22 +2,36 @@
 
 function updateRecordStatus($conn, $data)
 {
-    if (empty($data['ticketNo']) || empty($data['new_status'])) {
-        echo json_encode(['status' => false, 'message' => 'record_id and new_status are required']);
+    if (
+        empty($data['ticketNo']) ||
+        !is_array($data['ticketNo']) ||
+        count($data['ticketNo']) === 0 ||
+        empty($data['new_status'])
+    ) {
+        echo json_encode(['status' => false, 'message' => 'ticketNo (array) and new_status are required']);
         return;
     }
 
-    $ticket_no = isset($data['ticketNo']) ? $data['ticketNo'] : null;
+    $ticketNumbers = isset($data['ticketNo']) ? $data['ticketNo'] : null;
     $newStatus = isset($data['new_status']) ? $data['new_status'] : null;
-    $sql = "UPDATE weighing_record SET status = ? WHERE ticket_no = ?";
 
-    if ($stmt = $conn->prepare($sql)) {
-        $stmt->bind_param("ii", $newStatus, $ticket_no);
+    // Prepare IN clause with correct number of placeholders
+    $placeholders = implode(',', array_fill(0, count($ticketNumbers), '?'));
+
+    $sql = "UPDATE weighing_record SET status = ? WHERE ticket_no IN ($placeholders)";
+
+    $stmt = $conn->prepare($sql);
+    if ($stmt) {
+        // Types: first is 'i' for newStatus, then 'i' repeated for each ticket number
+        $types = str_repeat('i', 1 + count($ticketNumbers));
+        $params = array_merge([$newStatus], $ticketNumbers);
+        $stmt->bind_param($types, ...$params);
+
         if ($stmt->execute()) {
             if ($stmt->affected_rows > 0) {
                 echo json_encode(['status' => true, 'message' => 'Status updated successfully']);
             } else {
-                echo json_encode(['status' => false, 'message' => 'No record updated (ID may not exist)']);
+                echo json_encode(['status' => false, 'message' => 'No record updated (IDs may not exist)']);
             }
         } else {
             echo json_encode(['status' => false, 'message' => 'Execution failed: ' . $stmt->error]);

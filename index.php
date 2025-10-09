@@ -51,6 +51,7 @@ $routes = [
 	'error' => 'php/views/_error.php',
 	'dashboard' => 'php/views/_dashboard.php',
 	'labelconfig' => 'php/views/_labelconfig.php',
+	'usermanagement' => 'php/partials/_userManagement.php',
 ];
 
 // $isLoggedIn = true;

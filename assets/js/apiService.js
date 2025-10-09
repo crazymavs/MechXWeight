@@ -146,3 +146,10 @@ const updateTransactionStatusAPI = async (data) => {
   });
   return res;
 };
+const getSingleRecordByTicket = async (data) => {
+  const res = await callApi({
+    actionMethod: "getsinglerecordbyid",
+    ...data,
+  });
+  return res;
+};
