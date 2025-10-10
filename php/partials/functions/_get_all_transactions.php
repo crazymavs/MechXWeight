@@ -4,9 +4,27 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function getAllWeighingRecords($conn)
+function getAllWeighingRecords($conn, $data)
 {
+    $from_date = $data['from_date'];
+    $till_date = $data['till_date'];
+    // var_dump($from_date);
     $records = [];
+
+    $where = '';
+    $params = [];
+    $types = '';
+
+    if ($from_date) {
+        $where .= ' AND wr.created_at >= ?';
+        $params[] = $from_date;
+        $types .= 's';
+    }
+    if ($till_date) {
+        $where .= ' AND wr.created_at <= ?';
+        $params[] = $till_date;
+        $types .= 's';
+    }
 
     $sql = "
         SELECT
@@ -21,10 +39,16 @@ function getAllWeighingRecords($conn)
             weighing_record wr
         LEFT JOIN
             weights w ON wr.weighingrecord_id = w.weighingrecord_id
+        WHERE 1 = 1
+        $where
         ORDER BY
             wr.created_at DESC, w.weight_count ASC
     ";
     if ($stmt = $conn->prepare($sql)) {
+        // Only bind if there are params
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
 

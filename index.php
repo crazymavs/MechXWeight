@@ -52,6 +52,8 @@ $routes = [
 	'dashboard' => 'php/views/_dashboard.php',
 	'labelconfig' => 'php/views/_labelconfig.php',
 	'usermanagement' => 'php/partials/_userManagement.php',
+	'companyconfig' => 'php/views/_company_config.php',
+	'bill' => 'php/views/_bill_template.php',
 ];
 
 // $isLoggedIn = true;
@@ -61,6 +63,11 @@ if ($isLoggedIn) {
 	$userName = $_SESSION['user_name'];
 	$userEmail = $_SESSION['user_email'];
 	$userLevel = $_SESSION['user_level'];
+}
+
+if ($url == 'bill') {
+	include_once $routes['bill'];
+	return;
 }
 
 if ($url == 'api') {
@@ -148,6 +155,8 @@ function loadPage()
 	<!-- Theme Custom CSS -->
 	<link rel="stylesheet" href="<?php echo $asset_base ?>assets/css/adminStyle.css">
 	<script src="<?php echo $asset_base ?>assets/js/apiService.js"></script>
+	<!-- Datatable File -->
+	<script src="<?php echo $asset_base ?>assets/js/simple-datatables.js"></script>
 </head>
 
 <body>
@@ -270,8 +279,7 @@ function loadPage()
 	<script src="<?php echo $asset_base ?>assets/js/intlTelInput.min.js"></script>
 	<!-- form handler Js File -->
 	<script src="<?php echo $asset_base ?>assets/js/form_handler.js"></script>
-	<!-- Datatable File -->
-	<script src="<?php echo $asset_base ?>assets/js/simple-datatables.js"></script>
+
 	<!-- tinymce File -->
 	<script src="<?php echo $asset_base ?>assets/js/tinymce.min.js"></script>
 	<!-- Excel Expor -->

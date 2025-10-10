@@ -123,13 +123,19 @@ switch ($action_method) {
         return getAllUsers($conn, $data);
     case 'get_user_types':
         include_once 'php/partials/functions/_get_user_types.php';
-        return getUserTypes($conn);
+        return getUserTypes($conn, $data);
     case 'saveuser':
         include_once 'php/partials/functions/_insert_user.php';
         return adduser($conn, $data);
     case 'deleteuser':
         include_once 'php/partials/functions/_delete_user.php';
         return deleteUser($conn, $data);
+    case 'savecompany':
+        include_once 'php/partials/functions/_save_company.php';
+        return saveCompanyData($conn, $data);
+    case 'getcompany':
+        include_once 'php/partials/functions/_get_company.php';
+        return getCompanyData($conn, $data);
     default:
         echo json_encode([
             "status" => false,

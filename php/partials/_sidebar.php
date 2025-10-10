@@ -71,11 +71,7 @@
               </ul>
           </li>
 
-          <li class="nav-item">
-              <a class="nav-link collapsed" href="<?php echo $asset_base ?>usermanagement">
-                  <i class="fa-duotone fa-solid fa-scale-balanced"></i>
-                  <span>Users</span>
-              </a>
+
 
           <li>
               <hr>
@@ -92,6 +88,12 @@
                   <a class="nav-link collapsed" href="<?= $asset_base ?>labelconfig">
                       <i class="fa-duotone fa-solid fa-tags"></i>
                       <span>Label Config</span>
+                  </a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link collapsed" href="<?= $asset_base ?>companyconfig">
+                      <i class="fa-duotone fa-solid fa-building-memo"></i>
+                      <span>Company Config</span>
                   </a>
               </li>
               <li class="nav-item">

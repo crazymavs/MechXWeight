@@ -4,9 +4,26 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function getPendingWeighingTransactions($conn)
+function getPendingWeighingTransactions($conn, $data)
 {
+    $from_date = $data['from_date'];
+    $till_date = $data['till_date'];
     $records = [];
+
+    $where = '';
+    $params = [];
+    $types = '';
+
+    if ($from_date) {
+        $where .= ' AND wr.created_at >= ?';
+        $params[] = $from_date;
+        $types .= 's';
+    }
+    if ($till_date) {
+        $where .= ' AND wr.created_at <= ?';
+        $params[] = $till_date;
+        $types .= 's';
+    }
 
     $sql = "
         SELECT
@@ -23,10 +40,15 @@ function getPendingWeighingTransactions($conn)
             weights w ON wr.weighingrecord_id = w.weighingrecord_id
         WHERE
             wr.status = 1
+            $where
         ORDER BY
             wr.created_at DESC, w.weight_count ASC
     ";
     if ($stmt = $conn->prepare($sql)) {
+        // Only bind if there are params
+        if (!empty($params)) {
+            $stmt->bind_param($types, ...$params);
+        }
         $stmt->execute();
         $result = $stmt->get_result();
 

@@ -130,14 +130,14 @@ const insertRecordAPI = async (data) => {
   return res;
 };
 
-const getAllweingRecordsAPI = async () =>
-  await callApi({ actionMethod: "getalltransactions" });
+const getAllweingRecordsAPI = async (dateobj) =>
+  await callApi({ actionMethod: "getalltransactions", ...dateobj });
 
-const getPendingweingRecordsAPI = async () =>
-  await callApi({ actionMethod: "getpendingtransactions" });
+const getPendingweingRecordsAPI = async (dateobj) =>
+  await callApi({ actionMethod: "getpendingtransactions", ...dateobj });
 
-const getCompletedweingRecordsAPI = async () =>
-  await callApi({ actionMethod: "getcompletedtransactions" });
+const getCompletedweingRecordsAPI = async (dateobj) =>
+  await callApi({ actionMethod: "getcompletedtransactions", ...dateobj });
 
 const updateTransactionStatusAPI = async (data) => {
   const res = await callApi({
@@ -153,3 +153,13 @@ const getSingleRecordByTicket = async (data) => {
   });
   return res;
 };
+
+const saveCompanyAPI = async (data) => {
+  const res = await callApi({
+    actionMethod: "savecompany",
+    ...data,
+  });
+  return res;
+};
+
+const getCompanies = async () => await callApi({ actionMethod: "getcompany" });

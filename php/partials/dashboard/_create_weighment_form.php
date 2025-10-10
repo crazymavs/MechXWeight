@@ -25,12 +25,12 @@
 					<h5 class="fs-6"><strong>Date&Time: </strong><?= $toDate ?> <?= date('H:i') ?> </h5>
 					<div class="input-group mb-3 mt-3 ">
 						<span class="input-group-text"><strong>Party Name</strong></span>
-						<input type="text" class="form-control" id="weighment_form_party_name" name="party_name" value="">
+						<input type="text" class="form-control" id="weighment_form_party_name" required name="party_name" value="">
 						<div class="suggestionList" id="party_suggestions"></div>
 					</div>
 					<div class="input-group mb-3">
 						<span class="input-group-text"><strong>Vehicle No.</strong></span>
-						<input type="text" class="form-control" id="weighment_form_vehicle_no" name="vehicle_number" value="">
+						<input type="text" class="form-control" id="weighment_form_vehicle_no" required name="vehicle_number" value="">
 						<div class="suggestionList" id="vehicle_number_suggestions"></div>
 					</div>
 					<div class="input-group mb-3 d-none">

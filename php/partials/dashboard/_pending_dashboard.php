@@ -141,13 +141,24 @@
                 SelectAll
                 <input type="checkbox" id="select_all_checkbox" class="ms-3" onchange="toggleSelectAll(this)">
             </label>
+            <div class="d-flex gap-3">
+                <label for="" class="d-flex align-items-center gap-2">
+                    From:
+                    <input type="date" class="form-control" data-name="from_date" onchange="handelDataChange(this)">
+                </label>
+                <label for="" class="d-flex align-items-center gap-2">
+                    Till:
+                    <input type="date" class="form-control" data-name="till_date" onchange="handelDataChange(this)">
+                </label>
+            </div>
             <button class=" btn btn-info" id="btnExportRecords" onclick="exportRecords()">Export&nbsp;&nbsp;<i class="fa-duotone fa-solid fa-download"></i></button>
         </div>
     </div>
     <button type="button" class="btn btn-primary open_model_btn d-none" data-bs-toggle="modal" data-bs-target="#editTransactionModal">
         Add New
     </button>
-    <table class="table datatable" id="recordTable">
+
+    <table class="table datatable" id="myTable">
         <thead>
             <tr>
                 <th>Select</th>
@@ -167,8 +178,8 @@
         </thead>
         <tbody id="pendingWeightsBody">
             <tr>
-                <td></td>
                 <td>90809</td>
+                <td></td>
                 <td></td>
                 <td></td>
                 <td></td>
@@ -216,6 +227,7 @@ $parts = explode('/', $url);
 $subRoute = $parts[1];
 ?>
 <script>
+    let currentCompany = {}
     let recordStatuses = [];
     const heading = document.getElementById('transaction_heading');
     const route = <?= json_encode($subRoute) ?>;
@@ -260,6 +272,30 @@ $subRoute = $parts[1];
         });
     }
 
+    let from_date = null
+    let till_date = null
+
+    function handelDataChange(elem) {
+        const type = elem.dataset['name']
+        const value = elem.value
+
+        if (type === "from_date") {
+            from_date = value
+        } else {
+            till_date = value
+        }
+        console.log({
+            type,
+            value,
+            from_date,
+            till_date
+        })
+        getTableData({
+            from_date,
+            till_date
+        })
+    }
+
     async function handleMultipleSelect(elem) {
         const selectedAction = elem.value;
         const checkboxes = tbody.querySelectorAll('input[type="checkbox"]:checked');
@@ -284,6 +320,62 @@ $subRoute = $parts[1];
         fetchData()
     }
 
+    function rerouteToBill(data) {
+        // Prepare query parameters from your object
+        const params = new URLSearchParams();
+        console.log({
+            data
+        })
+
+
+        params.set('weighingrecord_id', data.weighingrecord_id);
+        params.set('weighment_type', data.weighment_type);
+        params.set('ticket_no', data.ticket_no);
+        params.set('vehicle_no', data.vehicle_number);
+        params.set('party_name', data.party_name);
+        params.set('charges', data.charge);
+        params.set('remarks', data.remarks || '');
+        params.set('date', data.created_at.split(' ')[0]);
+        params.set('time', data.created_at.split(' ')[1]);
+        params.set('status', data.status);
+
+        // Extract weights and materials as comma-separated strings or assign empty strings
+        params.set('weight', data.weight || '');
+        params.set('material', data.material || '');
+
+        console.log(currentCompany)
+
+        params.set('company_name', currentCompany.company_name || '');
+        params.set('company_addr', currentCompany.company_addr || '');
+        params.set('company_phone', currentCompany.company_phone || '');
+        // params.set('company_name', company.company_name || '');
+
+        // Redirect to /bill page with query parameters
+        window.open(`<?= $asset_base ?>/bill?${params.toString()}`, '_blank')
+    }
+
+    async function getCompData() {
+        const res = await getCompanies()
+        let company = null;
+        if (res.status) {
+            if (Array.isArray(res.data)) {
+                company = res.data[0] || null; // first company from list
+            } else {
+                company = res.data; // single company object
+            }
+        }
+
+        if (company) {
+            currentCompany = company
+
+        } else {
+            console.warn('No company data to fill form');
+        }
+
+    }
+    getCompData()
+
+
     async function handleSelect(elem) {
         const ticketNo = elem.closest('tr').querySelector('.ticketNo').innerText
         if (elem.value === "add") {
@@ -292,7 +384,17 @@ $subRoute = $parts[1];
             fillFormWithData(data);
             // addRecord(ticketNo);
         } else if (elem.value === "print") {
-            printRecord();
+            // printRecord();
+            const data = await fetchExistingData(ticketNo)
+            const material = elem.closest('tr').querySelector('.material').innerText
+            const weight = elem.closest('tr').querySelector('.weight').innerText
+            const charge = elem.closest('tr').querySelector('.charge').innerText
+            rerouteToBill({
+                ...data,
+                weight,
+                material,
+                charge
+            })
         } else if (elem.value === "complete") {
             updateTransaction([ticketNo], 2);
         } else if (elem.value === "delete") {
@@ -302,6 +404,9 @@ $subRoute = $parts[1];
         } else if (elem.value === "edit") {
             document.querySelector('.reset_button_modal').click();
             const data = await fetchExistingData(ticketNo)
+            console.log({
+                data
+            })
             fillModalwithData(data);
             openModelBtn.click();
             console.log({
@@ -378,24 +483,28 @@ $subRoute = $parts[1];
         });
     }
 
+    async function getTableData(dateObj) {
+        tbody.innerHTML = '';
+        let allRecords;
+        if (route === 'pendingtransactions') {
+            allRecords = await getPendingweingRecordsAPI(dateObj);
+        } else if (route === 'completedtransactions') {
+            allRecords = await getCompletedweingRecordsAPI(dateObj);
+        } else {
+            allRecords = await getAllweingRecordsAPI(dateObj);
+        }
+        allRecords.data.forEach(record => {
+            tbody.appendChild(createRow(record));
+        });
+    }
+
     const fetchData = async () => {
         const d = await getLabelConfiguration()
 
         updateTableHeaderLabels(d.newLables);
         const record_statuses = await getRecordStatusAPI();
         recordStatuses = record_statuses.data;
-        tbody.innerHTML = '';
-        let allRecords;
-        if (route === 'pendingtransactions') {
-            allRecords = await getPendingweingRecordsAPI();
-        } else if (route === 'completedtransactions') {
-            allRecords = await getCompletedweingRecordsAPI();
-        } else {
-            allRecords = await getAllweingRecordsAPI();
-        }
-        allRecords.data.forEach(record => {
-            tbody.appendChild(createRow(record));
-        });
+        getTableData()
     }
     fetchData()
 
@@ -510,9 +619,9 @@ $subRoute = $parts[1];
             <td>${record.created_at.split(' ')[1]}</td>
             <td>${record.vehicle_number}</td>
             <td>${record.party_name}</td>
-            <td>${record.material}</td>
-            <td>${weight}</td>
-            <td>${charges}</td>
+            <td class="material">${record.material}</td>
+            <td class="weight">${weight}</td>
+            <td class="charge">${charges}</td>
             <td>${Math.abs(netweight)}</td>
             <td><span class="status_span ${statusLabel.toLowerCase()}">${statusLabel}</span></td>
             <td>
