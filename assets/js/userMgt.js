@@ -55,7 +55,7 @@ $(function () {
     data.forEach(function (user) {
       const usertype = userTypes.find(
         (item) => item.user_type_id === parseInt(user.user_type)
-      );
+      )?.user_type;
       console.log({ usertype, user, userTypes });
       let deleteButton = "";
       if (loggedInEmail !== user.email) {
@@ -77,12 +77,7 @@ $(function () {
                             <td>${user.user_name}</td>
                             <td>${user.user_username}</td>
                             <td>${user.user_email}</td>
-                            <td>${
-                              userTypes.find(
-                                (item) =>
-                                  item.user_type_id === parseInt(user.user_type)
-                              ).user_type
-                            }</td>
+                            <td>${usertype ?? "NA"}</td>
                             <td>${
                               user.user_is_active ? "Active" : "Inactive"
                             }</td>
@@ -145,13 +140,17 @@ $(function () {
   }
 
   async function getUsers() {
+    const companyid = $("#loggedInUserCompany").val();
+    console.log({ companyid });
     const res = await fetch("http://localhost/mechxweight/api", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+
       body: JSON.stringify({
         actionMethod: "getUsers",
+        companyid,
       }),
     });
 
@@ -233,6 +232,7 @@ $(function () {
       user_type: $("#user_is_admin").val(),
       user_is_active: $("#user_is_active").val(),
       action_method: $("#user_id").val() ? "createUser" : "editUser",
+      user_company: $("#loggedInUserCompany").val(),
     };
     saveEditUser(formData);
   });

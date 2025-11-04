@@ -186,7 +186,8 @@ function clearForm(e) {
 
 async function handleWeighmentFormSubmit(e, pressedButton, ticket_no) {
   e.preventDefault();
-  console.log("Button pressed:", pressedButton);
+  console.log("Button pressed :", pressedButton);
+  console.log("ticket_no :", ticket_no);
   const resetBtn = e.target.querySelector('button[type="reset"]');
   const formData = new FormData(e.target);
 
@@ -194,12 +195,31 @@ async function handleWeighmentFormSubmit(e, pressedButton, ticket_no) {
   for (const [name, value] of formData.entries()) {
     data[name] = value;
   }
+  console.log(data);
   if (pressedButton === "keep_pending") {
     data["status"] = 1;
   } else if (pressedButton === "save_transaction") {
     data["status"] = 2;
   }
-  data["ticket_no"] = ticket_no ?? Math.random() * 1000000;
+  data["ticket_no"] = ticket_no == "New" ? Math.random() * 1000000 : ticket_no;
+  data["company_id"] = company_id;
+
+  // Compute net weights dynamically
+  const weights = [];
+  for (let i = 1; i <= 4; i++) {
+    const w = parseFloat(data[`weight_${i}`]);
+    if (!isNaN(w)) weights.push(w);
+  }
+
+  // Add calculated net weights
+  for (let i = 0; i < weights.length; i++) {
+    if (i === 0) {
+      data[`netweight_${i + 1}`] = weights[i]; // first stays same
+    } else {
+      data[`netweight_${i + 1}`] = weights[i] - weights[i - 1]; // subsequent differences
+    }
+  }
+
   const res = await insertRecordAPI(data);
   console.log({
     res,

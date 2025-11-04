@@ -4,10 +4,30 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-function getCompletedWeighingTransactions($conn)
+function getCompletedWeighingTransactions($conn, $data)
 {
+    $from_date = $data['from_date'];
+    $till_date = $data['till_date'];
+    $company_id = isset($data['company_id']) ? $data['company_id'] : null;
     $records = [];
-
+    $where = '';
+    $params = [];
+    $types = '';
+    if ($from_date) {
+        $where .= ' AND wr.created_at >= ?';
+        $params[] = $from_date;
+        $types .= 's';
+    }
+    if ($till_date) {
+        $where .= ' AND wr.created_at <= ?';
+        $params[] = $till_date;
+        $types .= 's';
+    }
+    if ($company_id !== null) {
+        $where .= ' AND wr.company_id = ?';  // assuming company_id is stored in weighing_record as wr.company_id
+        $params[] = $company_id;
+        $types .= 'i';
+    }
     $sql = "
         SELECT
             wr.*,

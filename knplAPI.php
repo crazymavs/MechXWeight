@@ -38,10 +38,6 @@ switch ($action_method) {
     case 'deleteUser':
         include_once 'php/ajax/_users_function.php';
         return deleteUser($conn);
-        break;        
-    case 'login':
-        include_once 'php/ajax/_login_get.php';
-        return loginSession($conn);
         break;
     case 'changePassword':
         include_once 'php/ajax/_users_function.php';
@@ -50,32 +46,12 @@ switch ($action_method) {
     case 'getUsers':
         include_once 'php/ajax/_users_function.php';
         return userFetching($conn);
-        break;   
+        break;
     case 'logout':
         include_once 'php/ajax/_end_session.php';
         return logoutSession();
-        break;   
-    case 'dashGraphData':
-        include_once 'php/ajax/_dashboardGraph.php';
-        return getDashboardGraphData($conn);
         break;
-    case 'getReportData' :
-        include_once 'php/ajax/_getReportsData.php';
-        return getReportsData($conn);
-        break;
-    case 'getAllTanksDashboardData':
-        include_once 'php/ajax/_getReportsData.php';
-        return getAllTanksData($conn);
-        break;
-    case 'driveGain':
-        include_once 'php/ajax/_getReportsData.php';
-        return getAllFTM($conn);
-        break;
-    case 'getBatches':
-        include_once 'php/ajax/_getReportsData.php';
-        return getFlowBatches($conn);
-        break;
-    
+
     default:
         # code...
         break;
@@ -83,5 +59,3 @@ switch ($action_method) {
 
 // Close database connection
 $conn->close();
-
-?>

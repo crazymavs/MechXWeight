@@ -39,7 +39,7 @@
         </div>
     </div>
 
-    <table class="table datatable">
+    <table class="table datatable" id="partiesTable">
         <thead>
             <tr>
                 <th>Id</th>
@@ -65,6 +65,7 @@
     const partyForm = document.querySelector('#add_party_form');
     let isEdit = false
     let party_id = 0
+    const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
     partyForm.addEventListener('submit', async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
@@ -72,6 +73,7 @@
         for (const [name, value] of formData.entries()) {
             data[name] = value;
         }
+        data['company_id'] = company_id;
         if (isEdit) {
             data['party_id'] = party_id;
             isEdit = false;
@@ -134,7 +136,10 @@
 
     async function fetchAndDisplayParties() {
         try {
-            const res = await getAllParties();
+            const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
+            const res = await getAllParties({
+                company_id
+            });
             if (res.status && res.data) {
                 const parties = res.data;
                 const tbody = document.querySelector('#party_table_section').querySelector('tbody');

@@ -80,18 +80,19 @@ function adduser($conn, $data)
         }
     } else {
         // Insert new user if no user_id provided (or 0)
-        $sqlInsert = "INSERT INTO users (user_name, user_username, user_email, user_password, user_is_active, user_type, user_created_at) 
-                  VALUES (?, ?, ?, ?, ?, ?, NOW())";
-
+        $sqlInsert = "INSERT INTO users (user_name, user_username, user_email, user_password, user_is_active, user_type, user_created_at, user_company) 
+                  VALUES (?, ?, ?, ?, ?, ?, NOW(), ?)";
+        $hashedPassword = password_hash($data['user_password'], PASSWORD_DEFAULT);
         if ($stmtInsert = $conn->prepare($sqlInsert)) {
             $stmtInsert->bind_param(
-                "ssssii",
+                "ssssiii",
                 $data['user_name'],
                 $data['user_username'],
                 $data['user_email'],
-                $data['user_password'],  // Pre-hashed password
+                $hashedPassword,
                 $data['user_is_active'],
-                $data['user_type']
+                $data['user_type'],
+                $data['user_company']
             );
 
             if ($stmtInsert->execute()) {

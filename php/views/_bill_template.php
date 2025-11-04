@@ -14,6 +14,15 @@
             border: 1px solid #000;
         }
 
+        .first_section {
+            text-align: center;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: end;
+            gap: 10px;
+        }
+
         h2 {
             text-align: center;
             margin-bottom: 20px;
@@ -56,14 +65,22 @@
     <h2>Transaction Bill</h2>
 
     <!-- Company Details -->
-    <div class="field"><label>Company Name:</label>
-        <div id="company_name"></div>
-    </div>
-    <div class="field"><label>Company Address:</label>
-        <div id="company_addr"></div>
-    </div>
-    <div class="field"><label>Company Phone:</label>
-        <div id="company_phone"></div>
+    <div class="first_section">
+        <div>
+            <img id="company_logo" src="" alt="Company Logo" style="max-width: 100px; max-height: 100px; display: block; margin: auto;" />
+        </div>
+        <div>
+            <div class="field"><label>Company Name:</label>
+                <div id="company_name"></div>
+            </div>
+            <div class="field"><label>Company Address:</label>
+                <div id="company_addr"></div>
+            </div>
+            <div class="field"><label>Company Phone:</label>
+                <div id="company_phone"></div>
+            </div>
+        </div>
+
     </div>
 
     <hr />
@@ -98,7 +115,9 @@
     <div class="field"><label>Net Weight (kg):</label>
         <div id="net_weight"></div>
     </div>
-
+    <?php
+    include_once `php/config.php`;
+    ?>
     <script>
         // Parse query parameters from URL
         const params = new URLSearchParams(window.location.search);
@@ -113,8 +132,9 @@
             company_name: getParam('company_name', 'N/A'),
             company_addr: getParam('company_addr', 'N/A'),
             company_phone: getParam('company_phone', 'N/A'),
+            company_logo: getParam('company_logo', ''),
         };
-
+        console.log('Company Data:', company);
 
 
         // Map URL params to transaction fields
@@ -134,6 +154,7 @@
         document.getElementById('company_name').textContent = company.company_name;
         document.getElementById('company_addr').textContent = company.company_addr;
         document.getElementById('company_phone').textContent = company.company_phone;
+        document.getElementById('company_logo').src = <?= $asset_base ?> + company.company_logo;
 
         // Fill transaction details
         document.getElementById('ticket_no').textContent = record.ticket_no;

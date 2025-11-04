@@ -158,7 +158,7 @@
         Add New
     </button>
 
-    <table class="table datatable" id="myTable">
+    <table class="table datatable" id="recordTable">
         <thead>
             <tr>
                 <th>Select</th>
@@ -173,26 +173,23 @@
                 <th>Net Weight</th>
                 <th>Status</th>
                 <th>Action</th>
-
             </tr>
         </thead>
         <tbody id="pendingWeightsBody">
             <tr>
-                <td>90809</td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-                <td></td>
-
+                <td><input type="checkbox" /></td>
+                <td>12345</td>
+                <td>2025-11-01</td>
+                <td>10:30 AM</td>
+                <td>ABC1234</td>
+                <td>Party Name</td>
+                <td>Material X</td>
+                <td>250 kg</td>
+                <td>$500</td>
+                <td>230 kg</td>
+                <td>Completed</td>
+                <td><button>Edit</button></td>
             </tr>
-
         </tbody>
     </table>
 </section>
@@ -257,7 +254,8 @@ $subRoute = $parts[1];
     });
     editForm.addEventListener('submit', async (e) => {
         const ticket = document.getElementById('modal_ticket_number').innerText;
-        handleWeighmentFormSubmit(e, pressedButton2, ticket);
+        const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
+        handleWeighmentFormSubmit(e, pressedButton2, ticket, company_id);
     });
 
     document.querySelector('.reset_button_modal').addEventListener('click', (e) => {
@@ -290,9 +288,11 @@ $subRoute = $parts[1];
             from_date,
             till_date
         })
+        const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
         getTableData({
             from_date,
-            till_date
+            till_date,
+            company_id
         })
     }
 
@@ -348,6 +348,7 @@ $subRoute = $parts[1];
         params.set('company_name', currentCompany.company_name || '');
         params.set('company_addr', currentCompany.company_addr || '');
         params.set('company_phone', currentCompany.company_phone || '');
+        params.set('company_logo', currentCompany.company_logo || '');
         // params.set('company_name', company.company_name || '');
 
         // Redirect to /bill page with query parameters
@@ -355,7 +356,13 @@ $subRoute = $parts[1];
     }
 
     async function getCompData() {
-        const res = await getCompanies()
+        const userid = <?= $_SESSION['user_id'] ?? 0 ?>;
+        const companyid = <?= $_SESSION['user_company'] ?? 0 ?>;
+
+        const res = await getUserCompany({
+            user_id: userid,
+            company_id: companyid
+        })
         let company = null;
         if (res.status) {
             if (Array.isArray(res.data)) {
@@ -404,14 +411,14 @@ $subRoute = $parts[1];
         } else if (elem.value === "edit") {
             document.querySelector('.reset_button_modal').click();
             const data = await fetchExistingData(ticketNo)
-            console.log({
-                data
-            })
+            // console.log({
+            //     data
+            // })
             fillModalwithData(data);
             openModelBtn.click();
-            console.log({
-                newLabels
-            })
+            // console.log({
+            //     newLabels
+            // })
             updateModlaLabelInputs(newLabels)
 
         }
@@ -485,6 +492,7 @@ $subRoute = $parts[1];
 
     async function getTableData(dateObj) {
         tbody.innerHTML = '';
+
         let allRecords;
         if (route === 'pendingtransactions') {
             allRecords = await getPendingweingRecordsAPI(dateObj);
@@ -493,8 +501,48 @@ $subRoute = $parts[1];
         } else {
             allRecords = await getAllweingRecordsAPI(dateObj);
         }
-        allRecords.data.forEach(record => {
-            tbody.appendChild(createRow(record));
+        console.log(allRecords)
+        // const tableBody = document.querySelector('#pendingWeightsBody')
+        // console.log({
+        //     tableBody
+        // })
+        tbody.innerHTML = ''
+        allRecords.data.forEach((record, index) => {
+            // const row = createRow(record);
+            const row = document.createElement('tr');
+            // row.setAttribute('data-index', index);
+            const firstWeight = record.weights ? record.weights.split(',')[0] : 0
+            const secondWeight = record.weights ? record.weights.split(',')[1] : 0
+            const netweight = record.net_weight ? record.net_weight : 0
+
+            const weight = record.weight ?? 0
+            const charges = record.charges ?? 0
+            const statusLabel = recordStatuses.find(item => item.status_id === record.status)?.label || "Unknown"
+            row.innerHTML = `
+            <td class="checkbox_col"><input id="checkbox_${index}" type="checkbox"></input></td>
+            <td class="ticketNo">${record.ticket_no}</td>
+            <td>${record.created_at.split(' ')[0]}</td>
+            <td>${record.created_at.split(' ')[1]}</td>
+            <td>${record.vehicle_number}</td>
+            <td>${record.party_name}</td>
+            <td class="material">${record.material}</td>
+            <td class="weight">${weight}</td>
+            <td class="charge">${charges}</td>
+            <td>${Math.abs(netweight)}</td>
+            <td><span class="status_span ${statusLabel.toLowerCase()}">${statusLabel}</span></td>
+            <td>
+                <select id="actions_${index}"  class="form-select" onchange="handleSelect(this)">
+                    <option value="choose" class="d-none" >Choose</option>
+                    <option value="add">Add Record</option>
+                    <option value="print">Print</option>
+                    <option value="complete">Complete</option>
+                    <option value="pending">Pending</option>
+                    <option value="delete">Delete</option>
+                    <option value="edit">Edit</option>
+                </select>
+            </td>
+        `;
+            tbody.appendChild(row);
         });
     }
 
@@ -504,9 +552,12 @@ $subRoute = $parts[1];
         updateTableHeaderLabels(d.newLables);
         const record_statuses = await getRecordStatusAPI();
         recordStatuses = record_statuses.data;
-        getTableData()
+        const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
+        getTableData({
+            company_id
+        })
     }
-    fetchData()
+
 
     function fillFormWithData(data) {
         const w1 = data.weights.split(',')[0] ?? 0;
@@ -608,7 +659,8 @@ $subRoute = $parts[1];
         const tr = document.createElement('tr');
         const firstWeight = record.weights ? record.weights.split(',')[0] : 0
         const secondWeight = record.weights ? record.weights.split(',')[1] : 0
-        const netweight = secondWeight ? firstWeight - secondWeight : 0
+        const netweight = record.net_weight ? record.net_weight : 0
+
         const weight = record.weight ?? 0
         const charges = record.charges ?? 0
         const statusLabel = recordStatuses.find(item => item.status_id === record.status)?.label || "Unknown"
@@ -638,4 +690,7 @@ $subRoute = $parts[1];
         `;
         return tr;
     }
+    window.onload = function() {
+        fetchData();
+    };
 </script>

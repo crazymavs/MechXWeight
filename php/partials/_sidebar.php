@@ -79,7 +79,7 @@
 
 
 
-          <?php if (isset($_SESSION['user_level']) && $_SESSION['user_level'] === 'admin') : ?>
+          <?php if (isset($_SESSION['user_type']) && $_SESSION['user_type'] === 1 || $_SESSION['user_type'] === 2) : ?>
               <li class="nav-heading">
                   <i class="fa-duotone fa-light fa-arrows-down-to-people"></i>
                   <span>Admin</span>

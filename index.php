@@ -12,6 +12,8 @@ $loginName = $_SESSION['user_username'];
 $userName = $_SESSION['user_name'];
 $userEmail = $_SESSION['user_email'];
 $userLevel = $_SESSION['user_level'];
+$userType = $_SESSION['user_type'];
+$userCompany = $_SESSION['user_company'];
 
 // Set timezone to India Standard Time
 date_default_timezone_set('Asia/Kolkata');
@@ -53,17 +55,24 @@ $routes = [
 	'labelconfig' => 'php/views/_labelconfig.php',
 	'usermanagement' => 'php/partials/_userManagement.php',
 	'companyconfig' => 'php/views/_company_config.php',
+	'editor' => 'php/views/_timy_mc_editor.php',
+	'register' => 'php/views/_register.php',
 	'bill' => 'php/views/_bill_template.php',
+	'regcompany' => 'php/views/_register_company.php',
 ];
 
 // $isLoggedIn = true;
 $isLoggedIn = isset($_SESSION['loggedin']) && $_SESSION['loggedin'];
 if ($isLoggedIn) {
 	$loginName = $_SESSION['user_username'];
+	$user_id = $_SESSION['user_id'];
 	$userName = $_SESSION['user_name'];
 	$userEmail = $_SESSION['user_email'];
 	$userLevel = $_SESSION['user_level'];
+	$userType = $_SESSION['user_type'];
+	$userCompany = $_SESSION['user_company'];
 }
+
 
 if ($url == 'bill') {
 	include_once $routes['bill'];
@@ -84,16 +93,11 @@ function loadPage()
 	if ($pageExists) {
 
 		include_once 'php/partials/global/_header.php';
-
 		echo '<main id="main" class="main">';
-
 		include_once('php/partials/_sidebar.php');
 		// include_once('php/partials/_dashboardTitle.php');
-
 		include_once $routes[$firstElement];
-
 		echo '</main>';
-
 		include_once 'php/partials/global/_footer.php';
 	}
 	return $pageExists;
@@ -189,6 +193,46 @@ function loadPage()
 				}
 			}
 			break;
+		case 'register':
+			global $routes;
+			$pageExists = array_key_exists($url, $routes);
+			if ($isLoggedIn) {
+				// Redirect logged-in users to dashboard
+				header("Location: " . $asset_base . "dashboard");
+				exit(); // Important: Stop further script execution
+			} else {
+				// Show register page
+				if ($pageExists) {
+					include_once $routes['register'];
+				} else {
+					http_response_code(404);
+				}
+			}
+			break;
+		case 'regcompany':
+			global $routes;
+			$pageExists = array_key_exists($url, $routes);
+			if (!$isLoggedIn) {
+				// Redirect non-logged-in users to login
+				header("Location: " . $asset_base . "login");
+				exit();
+			} else {
+				if ($userCompany != 0) {
+					// Redirect logged-in users to dashboard
+					header("Location: " . $asset_base . "dashboard");
+					exit(); // Important: Stop further script execution
+				} else {
+					// Show login page
+					if ($pageExists) {
+						// header("Location: " . $asset_base . "login");
+						// exit(); 
+						include_once $routes['regcompany'];
+					} else {
+						http_response_code(404);
+					}
+				}
+			}
+			break;
 
 		case 'api':
 			include_once $routes['api'];
@@ -199,6 +243,7 @@ function loadPage()
 			break;
 
 		default:
+
 			if (!$isLoggedIn) {
 				// Redirect non-logged-in users to login
 				header("Location: " . $asset_base . "login");

@@ -8,7 +8,7 @@ function getAllWeighingRecords($conn, $data)
 {
     $from_date = $data['from_date'];
     $till_date = $data['till_date'];
-    // var_dump($from_date);
+    $company_id = isset($data['company_id']) ? $data['company_id'] : null;
     $records = [];
 
     $where = '';
@@ -25,6 +25,11 @@ function getAllWeighingRecords($conn, $data)
         $params[] = $till_date;
         $types .= 's';
     }
+    if ($company_id !== null) {
+        $where .= ' AND wr.company_id = ?';  // assuming company_id is stored in weighing_record as wr.company_id
+        $params[] = $company_id;
+        $types .= 'i';
+    }
 
     $sql = "
         SELECT
@@ -34,6 +39,7 @@ function getAllWeighingRecords($conn, $data)
             w.weight_count,
             w.weighed_on,
             w.material,
+            w.net_weight,
             w.charges
         FROM
             weighing_record wr

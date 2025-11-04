@@ -135,7 +135,9 @@
 		}
 	</style>
 </form>
-
+<script>
+	const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
+</script>
 <script src="<?php echo $asset_base ?>assets/js/fussySearch.js"></script>
 <script src="<?php echo $asset_base ?>assets/js/setupAutoComplete.js"></script>
 <script src="<?php echo $asset_base ?>assets/js/utils.js"></script>
@@ -156,7 +158,6 @@
 	addMaterialButton.addEventListener("click", (e) => {
 		handleAddItemClick(e);
 	});
-
 	// Delegate delete button clicks using Event Delegation for dynamically cloned nodes
 	materialDetail_container.addEventListener("click", (e) => {
 		if (e.target.classList.contains("delete-material-btn")) {
@@ -187,7 +188,9 @@
 	});
 
 	weightment_form.addEventListener('submit', async (e) => {
-		handleWeighmentFormSubmit(e, pressedButton);
+		const ticket_number = e.target.querySelector('#ticket_number').innerText
+		const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
+		handleWeighmentFormSubmit(e, pressedButton, ticket_number, company_id);
 	})
 
 	let allParties = [];

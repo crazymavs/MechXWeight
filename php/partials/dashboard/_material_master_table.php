@@ -61,6 +61,7 @@
     const materialForm = document.querySelector('#add_material_form');
     let isEdit = false
     let material_id = 0
+    const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
     materialForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const formData = new FormData(e.target)
@@ -68,6 +69,7 @@
         for (const [name, value] of formData.entries()) {
             data[name] = value;
         }
+        data['company_id'] = company_id;
         if (isEdit) {
             data['material_id'] = material_id;
             isEdit = false;
@@ -129,7 +131,9 @@
 
     async function fetchAndDisplayMaterials() {
         try {
-            const res = await getAllMaterialsAPI();
+            const res = await getAllMaterialsAPI({
+                company_id
+            });
             if (res.status && res.data) {
                 const materials = res.data;
                 const tbody = document.querySelector('#material_table_section').querySelector('tbody');

@@ -1,11 +1,23 @@
 <?php
-function getAllVehicles($conn)
+function getAllVehicles($conn, $data)
 {
     $vehicles = [];
 
-    $sql = "SELECT vehicle_id, vehicle_owner, vehicle_number, vehicle_created_at, vehicle_status, vehicle_weight FROM vehicles ORDER BY vehicle_created_at DESC";
+    // Check if company_id is provided
+    if (!isset($data['company_id'])) {
+        echo json_encode(['status' => false, 'message' => "Missing company_id in data"]);
+        return;
+    }
+
+    $company_id = $data['company_id'];
+
+    $sql = "SELECT vehicle_id, vehicle_owner, vehicle_number, vehicle_created_at, vehicle_status, vehicle_weight
+            FROM vehicles
+            WHERE company_id = ?
+            ORDER BY vehicle_created_at DESC";
 
     if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param('i', $company_id);
         $stmt->execute();
         $result = $stmt->get_result();
 

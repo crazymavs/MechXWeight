@@ -29,7 +29,6 @@ include('php/global/_helper.php');
 include('php/global/_connection.php');
 
 $contentType = $_SERVER['CONTENT_TYPE'] ?? '';
-
 if (strpos($contentType, 'application/json') !== false) {
     // Handle JSON data
     $data = json_decode(file_get_contents("php://input"), true);
@@ -118,9 +117,19 @@ switch ($action_method) {
     case 'getrecordstatus':
         include_once 'php/partials/functions/_get_record_status.php';
         return getAllRecordStatuses($conn, $data);
+    case 'login':
+        include_once 'php/partials/functions/_login_user.php';
+        return loginUser($conn, $data);
+    case 'logout':
+        include_once 'php/ajax/_end_session.php';
+        return logoutSession();
+        break;
     case 'getUsers':
         include_once 'php/partials/functions/_get_all_users.php';
         return getAllUsers($conn, $data);
+    case 'registerUser':
+        include_once 'php/partials/functions/_register_user.php';
+        return registerUser($conn, $data);
     case 'get_user_types':
         include_once 'php/partials/functions/_get_user_types.php';
         return getUserTypes($conn, $data);
@@ -132,7 +141,8 @@ switch ($action_method) {
         return deleteUser($conn, $data);
     case 'savecompany':
         include_once 'php/partials/functions/_save_company.php';
-        return saveCompanyData($conn, $data);
+        $logo = $_FILES['company_logo'];
+        return saveCompanyData($conn, $data, $logo);
     case 'getcompany':
         include_once 'php/partials/functions/_get_company.php';
         return getCompanyData($conn, $data);

@@ -78,9 +78,10 @@
                     <div class="mb-3">
                         <label for="user_is_admin" class="form-label">User Type</label>
                         <select class="form-select" id="user_is_admin">
-                            <option value="0">User</option>
-                            <option value="1">Admin</option>
-                            <option value="2">Super Admin</option>
+                            <option value="1">Super Admin</option>
+                            <option value="2">Admin</option>
+                            <option value="3">Supervisor</option>
+                            <option value="4">Operator</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -144,5 +145,5 @@
     </div>
 </div>
 
-
 <input type="hidden" id="loggedInUserEmail" value="<?= $_SESSION['user_email']; ?>" name="">
+<input type="hidden" id="loggedInUserCompany" value="<?= $_SESSION['user_company']; ?>" name="">

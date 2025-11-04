@@ -1,11 +1,22 @@
 <?php
-function getAllParties($conn)
+function getAllParties($conn, $data)
 {
     $parties = [];
 
-    $sql = "SELECT party_id, party_name, party_email, party_phone, party_status, party_created_at FROM parties ORDER BY party_created_at DESC";
+    if (!isset($data['company_id'])) {
+        echo json_encode(['status' => false, 'message' => "Missing company_id in data"]);
+        return;
+    }
+
+    $company_id = $data['company_id'];
+
+    $sql = "SELECT party_id, party_name, party_email, party_phone, party_status, party_created_at 
+            FROM parties
+            WHERE company_id = ?
+            ORDER BY party_created_at DESC";
 
     if ($stmt = $conn->prepare($sql)) {
+        $stmt->bind_param('i', $company_id);
         $stmt->execute();
         $result = $stmt->get_result();
 
@@ -22,6 +33,7 @@ function getAllParties($conn)
 
     echo json_encode(['status' => true, 'data' => $parties]);
 }
+
 
 function getPartyById($conn, $data)
 {

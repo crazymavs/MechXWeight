@@ -19,7 +19,11 @@
 
                         <div class="form-group">
                             <label for="company_phone">Company Phone</label>
-                            <input type="tel" id="company_phone" name="company_phone" class="form-control" pattern="[0-9+()-\s]+" required />
+                            <input type="tel" id="company_phone" name="company_phone" class="form-control" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="company_logo">Company Logo</label>
+                            <input type="file" id="company_logo" name="company_logo" class="form-control" required />
                         </div>
 
                         <div class="form-group">
@@ -49,21 +53,22 @@
 
 <script>
     const saveCompanyForm = document.querySelector('#companyConfigForm')
-
+    let curCompany = null
 
     saveCompanyForm.addEventListener('submit', async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target);
+        // const data = {};
+        // for (const [name, value] of formData.entries()) {
+        //     data[name] = value;
+        // }
+        // const userid = <?= $_SESSION['user_id'] ?? 0 ?>;
+        const companyid = <?= $_SESSION['user_company'] ?? 0 ?>;
+        formData.append('company_id', companyid);
+        formData.append('company_logo', document.getElementById('company_logo').files[0]);
+        formData.append('actionMethod', 'savecompany');
 
-        const data = {};
-        for (const [name, value] of formData.entries()) {
-            data[name] = value;
-        }
-        console.log({
-            data
-        })
-
-        const res = await saveCompanyAPI(data);
+        const res = await saveCompanyAPI(formData);
         console.log({
             res,
         });
@@ -71,7 +76,13 @@
     })
 
     async function getdata() {
-        const res = await getCompanies()
+        const userid = <?= $_SESSION['user_id'] ?? 0 ?>;
+        const companyid = <?= $_SESSION['user_company'] ?? 0 ?>;
+
+        const res = await getUserCompany({
+            user_id: userid,
+            company_id: companyid
+        })
         // Assuming res.data contains the company object or first company in array
         let company = null;
 
@@ -84,6 +95,7 @@
         }
 
         if (company) {
+            curCompany = company
             // Fill form fields by ID
             document.getElementById('company_name').value = company.company_name || '';
             document.getElementById('company_addr').value = company.company_addr || '';

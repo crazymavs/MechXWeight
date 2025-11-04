@@ -77,6 +77,7 @@
     const form = document.querySelector('#add_vehicle_form')
     let isEdit = false
     let vehicle_id = 0
+    const company_id = <?= $_SESSION['user_company'] ?? 0 ?>;
     form.addEventListener('submit', async (e) => {
         e.preventDefault()
         const formData = new FormData(e.target)
@@ -84,6 +85,7 @@
         for (const [name, value] of formData.entries()) {
             data[name] = value;
         }
+        data['company_id'] = company_id;
         if (isEdit) {
             data['vehicle_id'] = vehicle_id;
             isEdit = false;
@@ -116,7 +118,9 @@
 
     async function fetchAndDisplayVehicles() {
         try {
-            const res = await getAllVehiclesAPI()
+            const res = await getAllVehiclesAPI({
+                company_id
+            })
             if (res.status) {
                 const vehicles = res.data;
                 const tbody = document.querySelector('#vehicle_table_section').querySelector('tbody');

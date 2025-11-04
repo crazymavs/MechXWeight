@@ -1,17 +1,14 @@
-const callApi = async (jsonData) => {
+const callApi = async (jsonData, isFormData = false, formData) => {
   try {
+    const headers = isFormData ? {} : { "Content-Type": "application/json" };
     const response = await fetch("http://localhost/mechxweight/api", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(jsonData),
+      headers: headers,
+      body: isFormData ? formData : JSON.stringify(jsonData),
     });
-
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
-
     const data = await response.json();
     return data;
   } catch (error) {
@@ -35,8 +32,8 @@ const deleteVehicleAPI = async (vehicleData) => {
   return res;
 };
 
-const getAllVehiclesAPI = async () =>
-  await callApi({ actionMethod: "getallvehicles" });
+const getAllVehiclesAPI = async (data) =>
+  await callApi({ actionMethod: "getallvehicles", ...data });
 
 const insertNewParty = async (vehicleData) => {
   const res = await callApi({
@@ -62,8 +59,8 @@ const deleteParty = async (partyData) => {
   return res;
 };
 
-const getAllParties = async () =>
-  await callApi({ actionMethod: "getallparties" });
+const getAllParties = async (data) =>
+  await callApi({ actionMethod: "getallparties", ...data });
 
 const getPartyByIdAPI = async (party_id) => {
   const res = await callApi({
@@ -105,8 +102,8 @@ const getMaterialByIdAPI = async (material_id) => {
   return res;
 };
 
-const getAllMaterialsAPI = async () =>
-  await callApi({ actionMethod: "getallmaterials" });
+const getAllMaterialsAPI = async (data) =>
+  await callApi({ actionMethod: "getallmaterials", ...data });
 
 const saveLabelConfigAPI = async (labelConfigData) => {
   const res = await callApi({
@@ -154,12 +151,20 @@ const getSingleRecordByTicket = async (data) => {
   return res;
 };
 
-const saveCompanyAPI = async (data) => {
+const regCompanyAPI = async (data) => {
+  console.log("api");
   const res = await callApi({
-    actionMethod: "savecompany",
+    actionMethod: "regcompany",
     ...data,
   });
+  console.log(res);
+  return res;
+};
+const saveCompanyAPI = async (formData) => {
+  const res = await callApi({}, true, formData);
+  console.log(res);
   return res;
 };
 
-const getCompanies = async () => await callApi({ actionMethod: "getcompany" });
+const getUserCompany = async ({ user_id, company_id }) =>
+  await callApi({ actionMethod: "getcompany", user_id, company_id });
